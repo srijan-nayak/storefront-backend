@@ -1,7 +1,20 @@
 version: "3.8"
 
 services:
-  postgres:
+  api:
+    image: node:16-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      PG_HOST: db
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    command: sh -c "yarn install && yarn run dev"
+
+  db:
     image: postgres:14.1-alpine
     volumes:
       - storefront-postgres-data:/var/lib/postgresql/data
