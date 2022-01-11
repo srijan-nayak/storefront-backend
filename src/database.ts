@@ -1,0 +1,14 @@
+import { Pool } from "pg";
+import dotenv from "dotenv";
+
+dotenv.config();
+const env = process.env;
+
+const pgPool = new Pool({
+  user: env["PG_USER"],
+  password: env["PG_PASSWORD"],
+  database: env["NODE_ENV"] === "test" ? env["PG_TEST_DB"] : env["PG_DB"],
+  host: env["PG_HOST"] || "localhost",
+});
+
+export default pgPool;
