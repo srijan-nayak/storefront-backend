@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node dev-build\"",
-    "test": "jasmine",
+    "test": "tsc; jasmine",
     "lint": "eslint src",
     "format": "prettier -w src"
   },
