@@ -7,4 +7,8 @@ app.get("/", (_req, res) => {
   res.json("root endpoint");
 });
 
-app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
+}
+
+export default app;
