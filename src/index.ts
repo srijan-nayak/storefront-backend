@@ -1,14 +1,16 @@
-import express from "express";
+import express, { Express, Request, Response } from "express";
 
-const app = express();
+const app: Express = express();
 const PORT = 3000;
 
-app.get("/", (_req, res) => {
+app.get("/", (_req: Request, res: Response): void => {
   res.json("root endpoint");
 });
 
 if (require.main === module) {
-  app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
+  app.listen(PORT, (): void =>
+    console.log(`Server is listening on port ${PORT}`)
+  );
 }
 
 export default app;
