@@ -15,7 +15,7 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 - Index: `/products` [GET]
 - Show: `/products/:product-id` [GET]
 - Create: `/products` [POST] [token required]
-- Top 5 most popular products: `/popular-products` [GET]
+- Top 5 most popular products: `/products?most-popular=true` [GET]
 - Products by category (args: product category): `/products?category=<category>` [GET]
 
 ### Users
