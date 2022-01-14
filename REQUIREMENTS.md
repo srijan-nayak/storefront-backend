@@ -36,14 +36,14 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 - id
 - name
 - price
-- [OPTIONAL] category
+- category
 
 ### User
 
 - id
 - firstName
 - lastName
-- password
+- password (password digest in [GET] requests)
 
 ### Orders
 
@@ -52,3 +52,39 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 - quantity of each product in the order
 - user_id
 - status of order (active or complete)
+
+## Tables
+
+### products
+
+| column             | type      |
+|--------------------|-----------|
+| id (`primary key`) | `integer` |
+| name               | `varchar` |
+| price              | `money`   |
+| category           | `varchar` |
+
+### users
+
+| column             | type      |
+|--------------------|-----------|
+| id (`primary key`) | `integer` |
+| first_name         | `varchar` |   
+| last_name          | `varchar` |
+| password_digest    | `varchar` |
+
+### orders
+
+| column                   | type      |
+|--------------------------|-----------|
+| id  (`primary key`)      | `integer` |
+| user_id  (`foreign key`) | `integer` |
+| completed                | `boolean` |
+
+### order-products
+
+| column                                        | type      |
+|-----------------------------------------------|-----------|
+| order_id (`compund key part` `foreign key`)   | `integer` |
+| product_id (`compund key part` `foregin key`) | `integer` |
+| quantity                                      | `integer` |
