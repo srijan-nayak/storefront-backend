@@ -1,10 +1,10 @@
 import app from "../index";
-import request from "supertest";
+import request, { Response } from "supertest";
 
-describe("GET /", () => {
-  it("should respond with 'root endpoint'", async () => {
+describe("GET /", (): void => {
+  it("should respond with 'root endpoint'", async (): Promise<void> => {
     try {
-      const response = await request(app).get("/");
+      const response: Response = await request(app).get("/");
       expect(response.body).toBe("root endpoint");
     } catch (error) {
       console.error("Error: Couldn't GET /");
