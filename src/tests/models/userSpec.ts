@@ -7,4 +7,13 @@ describe("UserStore", (): void => {
       expect(result).toEqual([]);
     });
   });
+
+  describe("show method", (): void => {
+    it("should initially throw error", async (): Promise<void> => {
+      const userId = 1;
+      await expectAsync(UserStore.show(userId)).toBeRejectedWithError(
+        `User with ID ${userId} doesn't exist`
+      );
+    });
+  });
 });
