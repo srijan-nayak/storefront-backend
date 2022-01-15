@@ -16,6 +16,17 @@ class UserStore {
     const result: QueryResult<User> = await pgPool.query("select * from users");
     return result.rows;
   }
+
+  static async show(userId: number): Promise<User> {
+    const result: QueryResult<User> = await pgPool.query(
+      "select * from users where id = $1",
+      [userId]
+    );
+    if (!result.rows[0]) {
+      throw new Error(`User with ID ${userId} doesn't exist`);
+    }
+    return result.rows[0];
+  }
 }
 
 export default UserStore;
