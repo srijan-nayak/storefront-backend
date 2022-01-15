@@ -1,8 +1,10 @@
 import UserStore, { User } from "../../models/user";
 
 describe("UserStore", (): void => {
-  describe("index method", (): void => {
-    it("should initially return empty result set", async (): Promise<void> => {
+  const storedUsers: User[] = [];
+
+  describe("index method initially", (): void => {
+    it("should return empty result set", async (): Promise<void> => {
       const result: User[] = await UserStore.index();
       expect(result).toEqual([]);
     });
@@ -28,6 +30,21 @@ describe("UserStore", (): void => {
       expect(result.firstName).toBe("Antasia");
       expect(result.lastName).toBe("Marjory");
       expect(typeof result.password).toBe("string");
+      storedUsers.push(result);
+    });
+  });
+
+  describe("index method after some data insertion", (): void => {
+    it("should return a list of all users", async (): Promise<void> => {
+      storedUsers.push(
+        await UserStore.create({
+          firstName: "April",
+          lastName: "Serra",
+          password: "husbandpope",
+        })
+      );
+      const result: User[] = await UserStore.index();
+      expect(result).toEqual(storedUsers);
     });
   });
 });
