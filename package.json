@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node dev-build\"",
-    "test": "tsc; jasmine",
+    "test": "tsc; export $(egrep -v \"#|^$\" .env | xargs) && db-migrate db:create $PG_TEST_DB && db-migrate --env test up && NODE_ENV=test jasmine; db-migrate db:drop $PG_TEST_DB",
     "lint": "eslint src",
     "format": "prettier -w src"
   },
