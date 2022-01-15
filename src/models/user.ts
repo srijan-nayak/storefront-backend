@@ -1,5 +1,10 @@
 import pgPool from "../database";
 import { QueryResult } from "pg";
+import dotenv from "dotenv";
+import { hash } from "bcrypt";
+
+dotenv.config();
+const env: NodeJS.ProcessEnv = process.env;
 
 type PasswordDigest = string;
 type PasswordPlainText = string;
@@ -41,6 +46,21 @@ class UserStore {
     if (!result.rows[0]) {
       throw new Error(`User with ID ${userId} doesn't exist`);
     }
+    return storedUserToUser(result.rows[0]);
+  }
+
+  static async create(user: User): Promise<User> {
+    const { firstName, lastName, password } = user;
+    const passwordDigest: string = await hash(
+      password + env["PEPPER"],
+      parseInt(env["SALT_ROUNDS"] as string)
+    );
+    const result: QueryResult<StoredUser> = await pgPool.query(
+      `insert into users (first_name, last_name, password_digest)
+       values ($1, $2, $3)
+       returning *`,
+      [firstName, lastName, passwordDigest]
+    );
     return storedUserToUser(result.rows[0]);
   }
 }
