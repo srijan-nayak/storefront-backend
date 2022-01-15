@@ -47,4 +47,19 @@ describe("UserStore", (): void => {
       expect(result).toEqual(storedUsers);
     });
   });
+
+  describe("show method after some data insertion", (): void => {
+    it("should return details for existing user", async (): Promise<void> => {
+      const user: User = storedUsers.slice(-1)[0];
+      const result: User = await UserStore.show(user.id as number);
+      expect(result).toEqual(user);
+    });
+
+    it("should throw error for non-existing user", async (): Promise<void> => {
+      const userId = 101;
+      await expectAsync(UserStore.show(userId)).toBeRejectedWithError(
+        `User with ID ${userId} doesn't exist`
+      );
+    });
+  });
 });
