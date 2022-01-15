@@ -16,4 +16,18 @@ describe("UserStore", (): void => {
       );
     });
   });
+
+  describe("create method", (): void => {
+    it("should return created user", async (): Promise<void> => {
+      const result: User = await UserStore.create({
+        firstName: "Antasia",
+        lastName: "Marjory",
+        password: "scenariofallen",
+      });
+      expect(result.id).toBeDefined();
+      expect(result.firstName).toBe("Antasia");
+      expect(result.lastName).toBe("Marjory");
+      expect(typeof result.password).toBe("string");
+    });
+  });
 });
