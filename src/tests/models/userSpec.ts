@@ -63,6 +63,13 @@ describe("UserStore", (): void => {
       expect(typeof result.password).toBe("string");
       storedUsers.push(result);
     });
+
+    it("should throw error for duplicate user id", async (): Promise<void> => {
+      const duplicateUser = sampleUsers[0];
+      await expectAsync(UserStore.create(duplicateUser)).toBeRejectedWithError(
+        `User with ID ${duplicateUser.id} already exists`
+      );
+    });
   });
 
   describe("index method after some data insertion", (): void => {
