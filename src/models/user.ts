@@ -65,7 +65,7 @@ class UserStore {
    */
   static async create(user: User): Promise<User> {
     const { id, firstName, lastName, password } = user;
-    if (await this.doesUserExist(id)) {
+    if (await UserStore.doesUserExist(id)) {
       throw new Error(`User with ID ${id} already exists`);
     }
     const passwordDigest: string = await hash(
