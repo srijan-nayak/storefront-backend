@@ -1,4 +1,5 @@
 import UserStore, { User } from "../../models/user";
+import pgPool from "../../database";
 
 describe("UserStore", (): void => {
   const storedUsers: User[] = [];
@@ -94,5 +95,10 @@ describe("UserStore", (): void => {
         `Incorrect password for user ${sampleUsers[1].id}`
       );
     });
+  });
+
+  afterAll(async (): Promise<void> => {
+    // clear users table for user handlers testing
+    await pgPool.query("delete from users");
   });
 });
