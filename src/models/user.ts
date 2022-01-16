@@ -24,6 +24,12 @@ export type StoredUser = {
   password_digest: PasswordDigest;
 };
 
+/**
+ * Convert the field names of a StoredUser to that of a User.
+ *
+ * @param storedUser
+ * @returns object with converted field names to math User type
+ */
 export const storedUserToUser = (storedUser: StoredUser): User => ({
   id: storedUser.id,
   firstName: storedUser.first_name,
@@ -32,6 +38,11 @@ export const storedUserToUser = (storedUser: StoredUser): User => ({
 });
 
 class UserStore {
+  /**
+   * Gets a list of all users in the database.
+   *
+   * @returns list of all users in database
+   */
   static async index(): Promise<User[]> {
     const result: QueryResult<StoredUser> = await pgPool.query(
       "select * from users"
@@ -39,6 +50,13 @@ class UserStore {
     return result.rows.map(storedUserToUser);
   }
 
+  /**
+   * Gets all user details for a given user ID. Throws an error if user with
+   * given ID doesn't exist.
+   *
+   * @param userId user ID of user whose details are to be shown
+   * @returns user details
+   */
   static async show(userId: string): Promise<User> {
     const result: QueryResult<StoredUser> = await pgPool.query(
       "select * from users where id = $1",
@@ -50,6 +68,14 @@ class UserStore {
     return storedUserToUser(result.rows[0]);
   }
 
+  /**
+   * Create and insert a new user into the database. Throws an error if a user
+   * already exists with the same user ID in the database.
+   *
+   * @param user new user to be created, password field should contain the plain
+   * text password
+   * @returns created user, password field contains the hashed password digest
+   */
   static async create(user: User): Promise<User> {
     const { id, firstName, lastName, password } = user;
     if (await this.doesUserExist(id)) {
@@ -68,6 +94,15 @@ class UserStore {
     return storedUserToUser(result.rows[0]);
   }
 
+  /**
+   * Takes user id and password of an existing user and returns a JWT if
+   * credentials are correct. Throws error for incorrect credentials.
+   *
+   * @param userId user ID of the user
+   * @param password plain text password of the user
+   *
+   * @returns JSON web token
+   */
   static async authenticate(
     userId: string,
     password: PasswordPlainText
@@ -80,6 +115,13 @@ class UserStore {
     }
   }
 
+  /**
+   * Checks if user with the given user ID exists in the database.
+   *
+   * @param userId user ID to check for
+   * @private
+   * @returns true if user exists, false otherwise
+   */
   private static async doesUserExist(userId: string): Promise<boolean> {
     const result: QueryResult<User> = await pgPool.query(
       `select *
