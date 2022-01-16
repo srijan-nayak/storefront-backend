@@ -23,7 +23,7 @@ export type StoredUser = {
   password_digest: PasswordDigest;
 };
 
-const storedUserToUser = (storedUser: StoredUser): User => ({
+export const storedUserToUser = (storedUser: StoredUser): User => ({
   id: storedUser.id,
   firstName: storedUser.first_name,
   lastName: storedUser.last_name,
