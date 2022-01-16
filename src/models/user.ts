@@ -1,7 +1,8 @@
 import pgPool from "../database";
 import { QueryResult } from "pg";
 import dotenv from "dotenv";
-import { hash } from "bcrypt";
+import { compare, hash } from "bcrypt";
+import { sign } from "jsonwebtoken";
 
 dotenv.config();
 const env: NodeJS.ProcessEnv = process.env;
@@ -62,6 +63,18 @@ class UserStore {
       [id, firstName, lastName, passwordDigest]
     );
     return storedUserToUser(result.rows[0]);
+  }
+
+  static async authenticate(
+    userId: string,
+    password: PasswordPlainText
+  ): Promise<string> {
+    const user: User = await this.show(userId);
+    if (await compare(password + env["PEPPER"], user.password)) {
+      return sign(user, env["JWT_SECRET"] as string);
+    } else {
+      throw new Error(`Incorrect password for user ${userId}`);
+    }
   }
 }
 
