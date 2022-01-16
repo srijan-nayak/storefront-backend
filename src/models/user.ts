@@ -52,6 +52,9 @@ class UserStore {
 
   static async create(user: User): Promise<User> {
     const { id, firstName, lastName, password } = user;
+    if (await this.doesUserExist(id)) {
+      throw new Error(`User with ID ${id} already exists`);
+    }
     const passwordDigest: string = await hash(
       password + env["PEPPER"],
       parseInt(env["SALT_ROUNDS"] as string)
@@ -75,6 +78,16 @@ class UserStore {
     } else {
       throw new Error(`Incorrect password for user ${userId}`);
     }
+  }
+
+  private static async doesUserExist(userId: string): Promise<boolean> {
+    const result: QueryResult<User> = await pgPool.query(
+      `select *
+       from users
+       where id = $1`,
+      [userId]
+    );
+    return result.rows.length !== 0;
   }
 }
 
