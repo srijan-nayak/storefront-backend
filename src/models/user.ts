@@ -17,25 +17,12 @@ export type User = {
   password: PasswordDigest | PasswordPlainText;
 };
 
-export type StoredUser = {
+type StoredUser = {
   id: string;
   first_name: string;
   last_name: string;
   password_digest: PasswordDigest;
 };
-
-/**
- * Convert the field names of a StoredUser to that of a User.
- *
- * @param storedUser
- * @returns object with converted field names to math User type
- */
-export const storedUserToUser = (storedUser: StoredUser): User => ({
-  id: storedUser.id,
-  firstName: storedUser.first_name,
-  lastName: storedUser.last_name,
-  password: storedUser.password_digest,
-});
 
 class UserStore {
   /**
@@ -47,7 +34,7 @@ class UserStore {
     const result: QueryResult<StoredUser> = await pgPool.query(
       "select * from users"
     );
-    return result.rows.map(storedUserToUser);
+    return result.rows.map(UserStore.storedUserToUser);
   }
 
   /**
@@ -65,7 +52,7 @@ class UserStore {
     if (!result.rows[0]) {
       throw new Error(`User with ID ${userId} doesn't exist`);
     }
-    return storedUserToUser(result.rows[0]);
+    return UserStore.storedUserToUser(result.rows[0]);
   }
 
   /**
@@ -91,7 +78,7 @@ class UserStore {
        returning *`,
       [id, firstName, lastName, passwordDigest]
     );
-    return storedUserToUser(result.rows[0]);
+    return UserStore.storedUserToUser(result.rows[0]);
   }
 
   /**
@@ -113,6 +100,21 @@ class UserStore {
     } else {
       throw new Error(`Incorrect password for user ${userId}`);
     }
+  }
+
+  /**
+   * Convert the field names of a StoredUser to that of a User.
+   *
+   * @param storedUser
+   * @returns object with converted field names to math User type
+   */
+  private static storedUserToUser(storedUser: StoredUser): User {
+    return {
+      id: storedUser.id,
+      firstName: storedUser.first_name,
+      lastName: storedUser.last_name,
+      password: storedUser.password_digest,
+    };
   }
 
   /**

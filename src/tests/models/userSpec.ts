@@ -1,25 +1,4 @@
-import UserStore, {
-  StoredUser,
-  storedUserToUser,
-  User,
-} from "../../models/user";
-
-describe("storedUserToUser", () => {
-  it("should convert a StoredUser to a User", () => {
-    const storedUser: StoredUser = {
-      id: "bryn_latifah",
-      first_name: "Bryn",
-      last_name: "Latifah",
-      password_digest:
-        "$2b$10$kN9am5Im5ZpsjYJ4Lud2OuTwp.VE8VTSvfOoD986L5jm6XzQ6PrEu",
-    };
-    const user: User = storedUserToUser(storedUser);
-    expect(user.id).toBe(storedUser.id);
-    expect(user.firstName).toBe(storedUser.first_name);
-    expect(user.lastName).toBe(storedUser.last_name);
-    expect(user.password).toBe(storedUser.password_digest);
-  });
-});
+import UserStore, { User } from "../../models/user";
 
 describe("UserStore", (): void => {
   const storedUsers: User[] = [];
