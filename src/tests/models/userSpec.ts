@@ -24,8 +24,8 @@ describe("UserStore", (): void => {
     });
   });
 
-  describe("show method", (): void => {
-    it("should initially throw error", async (): Promise<void> => {
+  describe("show method initially", (): void => {
+    it("should throw error", async (): Promise<void> => {
       const userId = "some_user";
       await expectAsync(UserStore.show(userId)).toBeRejectedWithError(
         `User with ID ${userId} doesn't exist`
