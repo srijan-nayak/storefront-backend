@@ -7,7 +7,7 @@ import UserStore, {
 describe("storedUserToUser", () => {
   it("should convert a StoredUser to a User", () => {
     const storedUser: StoredUser = {
-      id: 1,
+      id: "bryn_latifah",
       first_name: "Bryn",
       last_name: "Latifah",
       password_digest:
@@ -33,7 +33,7 @@ describe("UserStore", (): void => {
 
   describe("show method", (): void => {
     it("should initially throw error", async (): Promise<void> => {
-      const userId = 1;
+      const userId = "some_user";
       await expectAsync(UserStore.show(userId)).toBeRejectedWithError(
         `User with ID ${userId} doesn't exist`
       );
@@ -43,11 +43,12 @@ describe("UserStore", (): void => {
   describe("create method", (): void => {
     it("should return created user", async (): Promise<void> => {
       const result: User = await UserStore.create({
+        id: "antasia_marjory",
         firstName: "Antasia",
         lastName: "Marjory",
         password: "scenariofallen",
       });
-      expect(result.id).toBeDefined();
+      expect(result.id).toBe("antasia_marjory");
       expect(result.firstName).toBe("Antasia");
       expect(result.lastName).toBe("Marjory");
       expect(typeof result.password).toBe("string");
@@ -59,6 +60,7 @@ describe("UserStore", (): void => {
     it("should return a list of all users", async (): Promise<void> => {
       storedUsers.push(
         await UserStore.create({
+          id: "april_serra",
           firstName: "April",
           lastName: "Serra",
           password: "husbandpope",
@@ -72,12 +74,12 @@ describe("UserStore", (): void => {
   describe("show method after some data insertion", (): void => {
     it("should return details for existing user", async (): Promise<void> => {
       const user: User = storedUsers.slice(-1)[0];
-      const result: User = await UserStore.show(user.id as number);
+      const result: User = await UserStore.show(user.id);
       expect(result).toEqual(user);
     });
 
     it("should throw error for non-existing user", async (): Promise<void> => {
-      const userId = 101;
+      const userId = "non_existing_user";
       await expectAsync(UserStore.show(userId)).toBeRejectedWithError(
         `User with ID ${userId} doesn't exist`
       );

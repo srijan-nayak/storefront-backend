@@ -68,7 +68,7 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 
 | column             | type      |
 |--------------------|-----------|
-| id (`primary key`) | `integer` |
+| id (`primary key`) | `varchar` |
 | first_name         | `varchar` |   
 | last_name          | `varchar` |
 | password_digest    | `varchar` |
@@ -78,7 +78,7 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 | column                   | type      |
 |--------------------------|-----------|
 | id  (`primary key`)      | `integer` |
-| user_id  (`foreign key`) | `integer` |
+| user_id  (`foreign key`) | `varchar` |
 | completed                | `boolean` |
 
 ### order-products

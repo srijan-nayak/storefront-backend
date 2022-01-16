@@ -10,14 +10,14 @@ type PasswordDigest = string;
 type PasswordPlainText = string;
 
 export type User = {
-  id?: number;
+  id: string;
   firstName: string;
   lastName: string;
   password: PasswordDigest | PasswordPlainText;
 };
 
 export type StoredUser = {
-  id: number;
+  id: string;
   first_name: string;
   last_name: string;
   password_digest: PasswordDigest;
@@ -38,7 +38,7 @@ class UserStore {
     return result.rows.map(storedUserToUser);
   }
 
-  static async show(userId: number): Promise<User> {
+  static async show(userId: string): Promise<User> {
     const result: QueryResult<StoredUser> = await pgPool.query(
       "select * from users where id = $1",
       [userId]
@@ -50,16 +50,16 @@ class UserStore {
   }
 
   static async create(user: User): Promise<User> {
-    const { firstName, lastName, password } = user;
+    const { id, firstName, lastName, password } = user;
     const passwordDigest: string = await hash(
       password + env["PEPPER"],
       parseInt(env["SALT_ROUNDS"] as string)
     );
     const result: QueryResult<StoredUser> = await pgPool.query(
-      `insert into users (first_name, last_name, password_digest)
-       values ($1, $2, $3)
+      `insert into users (id, first_name, last_name, password_digest)
+       values ($1, $2, $3, $4)
        returning *`,
-      [firstName, lastName, passwordDigest]
+      [id, firstName, lastName, passwordDigest]
     );
     return storedUserToUser(result.rows[0]);
   }
