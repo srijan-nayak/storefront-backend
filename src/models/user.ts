@@ -25,6 +25,12 @@ type StoredUser = {
 };
 
 class UserStore {
+  static readonly errorMessages = {
+    UserNotFound: "A user with the given ID doesn't exist",
+    UserAlreadyExists: "A user with the given ID already exists",
+    IncorrectPassword: "Incorrect password for the given user ID",
+  };
+
   /**
    * Gets a list of all users in the database.
    *
@@ -50,7 +56,7 @@ class UserStore {
       [userId]
     );
     if (!result.rows[0]) {
-      throw new Error(`User with ID ${userId} doesn't exist`);
+      throw new Error(UserStore.errorMessages.UserNotFound);
     }
     return UserStore.storedUserToUser(result.rows[0]);
   }
@@ -66,7 +72,7 @@ class UserStore {
   static async create(user: User): Promise<User> {
     const { id, firstName, lastName, password } = user;
     if (await UserStore.doesUserExist(id)) {
-      throw new Error(`User with ID ${id} already exists`);
+      throw new Error(UserStore.errorMessages.UserAlreadyExists);
     }
     const passwordDigest: string = await hash(
       password + env["PEPPER"],
@@ -98,7 +104,7 @@ class UserStore {
     if (await compare(password + env["PEPPER"], user.password)) {
       return sign(user, env["JWT_SECRET"] as string);
     } else {
-      throw new Error(`Incorrect password for user ${userId}`);
+      throw new Error(UserStore.errorMessages.IncorrectPassword);
     }
   }
 

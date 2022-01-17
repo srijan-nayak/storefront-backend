@@ -27,9 +27,8 @@ describe("UserStore", (): void => {
 
   describe("show method initially", (): void => {
     it("should throw error", async (): Promise<void> => {
-      const userId = "some_user";
-      await expectAsync(UserStore.show(userId)).toBeRejectedWithError(
-        `User with ID ${userId} doesn't exist`
+      await expectAsync(UserStore.show("some_user")).toBeRejectedWithError(
+        UserStore.errorMessages.UserNotFound
       );
     });
   });
@@ -47,7 +46,7 @@ describe("UserStore", (): void => {
     it("should throw error for duplicate user id", async (): Promise<void> => {
       const duplicateUser = sampleUsers[0];
       await expectAsync(UserStore.create(duplicateUser)).toBeRejectedWithError(
-        `User with ID ${duplicateUser.id} already exists`
+        UserStore.errorMessages.UserAlreadyExists
       );
     });
   });
@@ -68,10 +67,9 @@ describe("UserStore", (): void => {
     });
 
     it("should throw error for non-existing user", async (): Promise<void> => {
-      const userId = "non_existing_user";
-      await expectAsync(UserStore.show(userId)).toBeRejectedWithError(
-        `User with ID ${userId} doesn't exist`
-      );
+      await expectAsync(
+        UserStore.show("non_existing_user")
+      ).toBeRejectedWithError(UserStore.errorMessages.UserNotFound);
     });
   });
 
@@ -85,15 +83,12 @@ describe("UserStore", (): void => {
     });
 
     it("should throw error for incorrect credentials", async () => {
-      const incorrectUserId = "non_existing_user";
       await expectAsync(
-        UserStore.authenticate(incorrectUserId, "random_password")
-      ).toBeRejectedWithError(`User with ID ${incorrectUserId} doesn't exist`);
+        UserStore.authenticate("non_existing_user", "random_password")
+      ).toBeRejectedWithError(UserStore.errorMessages.UserNotFound);
       await expectAsync(
         UserStore.authenticate(sampleUsers[1].id, "wrondpassword")
-      ).toBeRejectedWithError(
-        `Incorrect password for user ${sampleUsers[1].id}`
-      );
+      ).toBeRejectedWithError(UserStore.errorMessages.IncorrectPassword);
     });
   });
 
