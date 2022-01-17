@@ -31,14 +31,10 @@ class UserStore {
    * @returns list of all users in database
    */
   static async index(): Promise<User[]> {
-    try {
-      const result: QueryResult<StoredUser> = await pgPool.query(
-        "select * from users"
-      );
-      return result.rows.map(UserStore.storedUserToUser);
-    } catch (error) {
-      throw new Error("Couldn't get list of users from database");
-    }
+    const result: QueryResult<StoredUser> = await pgPool.query(
+      "select * from users"
+    );
+    return result.rows.map(UserStore.storedUserToUser);
   }
 
   /**
