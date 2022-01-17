@@ -1,69 +1,47 @@
 import UserStore, { User } from "../../models/user";
-import pgPool from "../../database";
 
 describe("UserStore", (): void => {
-  const storedUsers: User[] = [];
-  const sampleUsers: User[] = [
-    {
-      id: "antasia_marjory",
-      firstName: "Antasia",
-      lastName: "Marjory",
-      password: "scenariofallen",
-    },
-    {
-      id: "april_serra",
-      firstName: "April",
-      lastName: "Serra",
-      password: "husbandpope",
-    },
-  ];
-
-  describe("index method initially", (): void => {
-    it("should return empty result set", async (): Promise<void> => {
+  describe("index method", (): void => {
+    it("should return a list of all users", async (): Promise<void> => {
       const result: User[] = await UserStore.index();
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe("show method initially", (): void => {
-    it("should throw error", async (): Promise<void> => {
-      await expectAsync(UserStore.show("some_user")).toBeRejectedWithError(
-        UserStore.errorMessages.UserNotFound
-      );
+      expect(result.length).toBeGreaterThan(1);
+      for (const user of result) {
+        expect(typeof user.id).toBe("string");
+        expect(typeof user.firstName).toBe("string");
+        expect(typeof user.lastName).toBe("string");
+        expect(typeof user.password).toBe("string");
+      }
     });
   });
 
   describe("create method", (): void => {
     it("should return created user", async (): Promise<void> => {
-      const result: User = await UserStore.create(sampleUsers[0]);
-      expect(result.id).toBe(sampleUsers[0].id);
-      expect(result.firstName).toBe(sampleUsers[0].firstName);
-      expect(result.lastName).toBe(sampleUsers[0].lastName);
+      const newUser: User = {
+        id: "lucerito_lazer",
+        firstName: "Lucerito",
+        lastName: "Lazer",
+        password: "mindcontinually",
+      };
+      const result: User = await UserStore.create(newUser);
+      expect(result.id).toBe(newUser.id);
+      expect(result.firstName).toBe(newUser.firstName);
+      expect(result.lastName).toBe(newUser.lastName);
       expect(typeof result.password).toBe("string");
-      storedUsers.push(result);
     });
 
     it("should throw error for duplicate user id", async (): Promise<void> => {
-      const duplicateUser = sampleUsers[0];
+      const duplicateUser: User = (await UserStore.index())[0];
       await expectAsync(UserStore.create(duplicateUser)).toBeRejectedWithError(
         UserStore.errorMessages.UserAlreadyExists
       );
     });
   });
 
-  describe("index method after some data insertion", (): void => {
-    it("should return a list of all users", async (): Promise<void> => {
-      storedUsers.push(await UserStore.create(sampleUsers[1]));
-      const result: User[] = await UserStore.index();
-      expect(result).toEqual(storedUsers);
-    });
-  });
-
-  describe("show method after some data insertion", (): void => {
+  describe("show method", (): void => {
     it("should return details for existing user", async (): Promise<void> => {
-      const user: User = storedUsers.slice(-1)[0];
-      const result: User = await UserStore.show(user.id);
-      expect(result).toEqual(user);
+      const existingUser: User = (await UserStore.index())[0];
+      const result: User = await UserStore.show(existingUser.id);
+      expect(result).toEqual(existingUser);
     });
 
     it("should throw error for non-existing user", async (): Promise<void> => {
@@ -75,25 +53,25 @@ describe("UserStore", (): void => {
 
   describe("authenticate method", () => {
     it("should return JWT for correct credentials", async (): Promise<void> => {
-      const result = await UserStore.authenticate(
-        sampleUsers[0].id,
-        sampleUsers[0].password
-      );
+      const user: User = {
+        id: "ayla_meika",
+        firstName: "Ayla",
+        lastName: "Meika",
+        password: "jammetadata",
+      };
+      await UserStore.create(user);
+      const result = await UserStore.authenticate(user.id, user.password);
       expect(typeof result).toBe("string");
     });
 
     it("should throw error for incorrect credentials", async () => {
+      const existingUser: User = (await UserStore.index())[0];
       await expectAsync(
         UserStore.authenticate("non_existing_user", "random_password")
       ).toBeRejectedWithError(UserStore.errorMessages.UserNotFound);
       await expectAsync(
-        UserStore.authenticate(sampleUsers[1].id, "wrondpassword")
+        UserStore.authenticate(existingUser.id, "wrondpassword")
       ).toBeRejectedWithError(UserStore.errorMessages.IncorrectPassword);
     });
-  });
-
-  afterAll(async (): Promise<void> => {
-    // clear users table for user handlers testing
-    await pgPool.query("delete from users");
   });
 });
