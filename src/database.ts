@@ -11,6 +11,6 @@ const pgPool: Pool = new Pool({
   host: env["PG_HOST"] || "localhost",
 });
 
-export const DBError = Error("Couldn't successfully query database");
+export const DBError: Error = Error("Couldn't successfully query database");
 
 export default pgPool;
