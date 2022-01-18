@@ -3,6 +3,7 @@ import { QueryResult } from "pg";
 import dotenv from "dotenv";
 import { compare, hash } from "bcrypt";
 import { sign } from "jsonwebtoken";
+import { Result } from "../result";
 
 dotenv.config();
 const env: NodeJS.ProcessEnv = process.env;
@@ -44,21 +45,21 @@ class UserStore {
   }
 
   /**
-   * Gets all user details for a given user ID. Throws an error if user with
+   * Gets all user details for a given user ID. Returns an error if user with
    * given ID doesn't exist.
    *
    * @param userId user ID of user whose details are to be shown
-   * @returns user details
+   * @returns result object containing either the user details or an error
    */
-  static async show(userId: string): Promise<User> {
+  static async show(userId: string): Promise<Result<User>> {
     const result: QueryResult<StoredUser> = await pgPool.query(
       "select * from users where id = $1",
       [userId]
     );
     if (!result.rows[0]) {
-      throw new Error(UserStore.errorMessages.UserNotFound);
+      return { ok: false, data: Error(UserStore.errorMessages.UserNotFound) };
     }
-    return UserStore.storedUserToUser(result.rows[0]);
+    return { ok: true, data: UserStore.storedUserToUser(result.rows[0]) };
   }
 
   /**
@@ -67,12 +68,17 @@ class UserStore {
    *
    * @param user new user to be created, password field should contain the plain
    * text password
-   * @returns created user, password field contains the hashed password digest
+   * @returns result object containing created user, where password field
+   * contains the hashed password digest, or an error
    */
-  static async create(user: User): Promise<User> {
+  static async create(user: User): Promise<Result<User>> {
     const { id, firstName, lastName, password } = user;
-    if (await UserStore.doesUserExist(id)) {
-      throw new Error(UserStore.errorMessages.UserAlreadyExists);
+    const showResult: Result<User> = await UserStore.show(id);
+    if (showResult.ok) {
+      return {
+        ok: false,
+        data: Error(UserStore.errorMessages.UserAlreadyExists),
+      };
     }
     const passwordDigest: string = await hash(
       password + env["PEPPER"],
@@ -84,7 +90,7 @@ class UserStore {
        returning *`,
       [id, firstName, lastName, passwordDigest]
     );
-    return UserStore.storedUserToUser(result.rows[0]);
+    return { ok: true, data: UserStore.storedUserToUser(result.rows[0]) };
   }
 
   /**
@@ -94,25 +100,38 @@ class UserStore {
    * @param userId user ID of the user
    * @param password plain text password of the user
    *
-   * @returns JSON web token
+   * @returns result object containing JSON web token or an error
    */
   static async authenticate(
     userId: string,
     password: PasswordPlainText
-  ): Promise<string> {
-    const user: User = await this.show(userId);
-    if (await compare(password + env["PEPPER"], user.password)) {
-      return sign(user, env["JWT_SECRET"] as string);
-    } else {
-      throw new Error(UserStore.errorMessages.IncorrectPassword);
+  ): Promise<Result<string>> {
+    const showResult: Result<User> = await this.show(userId);
+    if (!showResult.ok) {
+      return {
+        ok: false,
+        data: showResult.data,
+      };
     }
+    const user: User = showResult.data;
+    const isPasswordCorrect = await compare(
+      password + env["PEPPER"],
+      user.password
+    );
+    if (!isPasswordCorrect) {
+      return {
+        ok: false,
+        data: Error(UserStore.errorMessages.IncorrectPassword),
+      };
+    }
+    return { ok: true, data: sign(user, env["JWT_SECRET"] as string) };
   }
 
   /**
    * Convert the field names of a StoredUser to that of a User.
    *
    * @param storedUser
-   * @returns object with converted field names to math User type
+   * @returns object with converted field names to match User type
    */
   private static storedUserToUser(storedUser: StoredUser): User {
     return {
@@ -121,23 +140,6 @@ class UserStore {
       lastName: storedUser.last_name,
       password: storedUser.password_digest,
     };
-  }
-
-  /**
-   * Checks if user with the given user ID exists in the database.
-   *
-   * @param userId user ID to check for
-   * @private
-   * @returns true if user exists, false otherwise
-   */
-  private static async doesUserExist(userId: string): Promise<boolean> {
-    const result: QueryResult<User> = await pgPool.query(
-      `select *
-       from users
-       where id = $1`,
-      [userId]
-    );
-    return result.rows.length !== 0;
   }
 }
 
