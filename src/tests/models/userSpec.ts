@@ -39,6 +39,29 @@ describe("UserStore", (): void => {
       const error: Error = createResult.data as Error;
       expect(error.message).toBe(UserStore.errorMessages.UserAlreadyExists);
     });
+
+    it("should return error for invalid user data", async (): Promise<void> => {
+      const invalidUser1: User = {
+        firstName: "Columbus",
+        lastName: "Emma",
+        password: "subsequentlycohen",
+      } as User;
+      const createResult1: Result<User> = await UserStore.create(invalidUser1);
+      expect(createResult1.ok).toBe(false);
+      const error1: Error = createResult1.data as Error;
+      expect(error1.message).toBe(UserStore.errorMessages.InvalidFields);
+
+      const invalidUser2: User = {
+        id: "nereida_towana",
+        firstName: "Nereida",
+        lastName: "Towana",
+        password: "",
+      };
+      const createResult2: Result<User> = await UserStore.create(invalidUser2);
+      expect(createResult2.ok).toBe(false);
+      const error2: Error = createResult2.data as Error;
+      expect(error2.message).toBe(UserStore.errorMessages.InvalidFields);
+    });
   });
 
   describe("show method", (): void => {
