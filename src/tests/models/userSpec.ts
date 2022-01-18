@@ -1,4 +1,5 @@
 import UserStore, { User } from "../../models/user";
+import { Result } from "../../result";
 
 describe("UserStore", (): void => {
   describe("index method", (): void => {
@@ -22,32 +23,40 @@ describe("UserStore", (): void => {
         lastName: "Lazer",
         password: "mindcontinually",
       };
-      const result: User = await UserStore.create(newUser);
-      expect(result.id).toBe(newUser.id);
-      expect(result.firstName).toBe(newUser.firstName);
-      expect(result.lastName).toBe(newUser.lastName);
-      expect(typeof result.password).toBe("string");
+      const createResult: Result<User> = await UserStore.create(newUser);
+      expect(createResult.ok).toBe(true);
+      const user: User = createResult.data as User;
+      expect(user.id).toBe(newUser.id);
+      expect(user.firstName).toBe(newUser.firstName);
+      expect(user.lastName).toBe(newUser.lastName);
+      expect(typeof user.password).toBe("string");
     });
 
-    it("should throw error for duplicate user id", async (): Promise<void> => {
+    it("should return error for duplicate user id", async (): Promise<void> => {
       const duplicateUser: User = (await UserStore.index())[0];
-      await expectAsync(UserStore.create(duplicateUser)).toBeRejectedWithError(
-        UserStore.errorMessages.UserAlreadyExists
-      );
+      const createResult: Result<User> = await UserStore.create(duplicateUser);
+      expect(createResult.ok).toBe(false);
+      const error: Error = createResult.data as Error;
+      expect(error.message).toBe(UserStore.errorMessages.UserAlreadyExists);
     });
   });
 
   describe("show method", (): void => {
     it("should return details for existing user", async (): Promise<void> => {
       const existingUser: User = (await UserStore.index())[0];
-      const result: User = await UserStore.show(existingUser.id);
-      expect(result).toEqual(existingUser);
+      const showResult: Result<User> = await UserStore.show(existingUser.id);
+      expect(showResult.ok).toBe(true);
+      const user: User = showResult.data as User;
+      expect(user).toEqual(existingUser);
     });
 
     it("should throw error for non-existing user", async (): Promise<void> => {
-      await expectAsync(
-        UserStore.show("non_existing_user")
-      ).toBeRejectedWithError(UserStore.errorMessages.UserNotFound);
+      const showResult: Result<User> = await UserStore.show(
+        "non_existing_user"
+      );
+      expect(showResult.ok).toBe(false);
+      const error: Error = showResult.data as Error;
+      expect(error.message).toBe(UserStore.errorMessages.UserNotFound);
     });
   });
 
@@ -60,18 +69,30 @@ describe("UserStore", (): void => {
         password: "jammetadata",
       };
       await UserStore.create(user);
-      const result = await UserStore.authenticate(user.id, user.password);
-      expect(typeof result).toBe("string");
+      const result: Result<string> = await UserStore.authenticate(
+        user.id,
+        user.password
+      );
+      expect(result.ok).toBe(true);
+      const jwt: string = result.data as string;
+      expect(typeof jwt).toBe("string");
     });
 
     it("should throw error for incorrect credentials", async () => {
       const existingUser: User = (await UserStore.index())[0];
-      await expectAsync(
-        UserStore.authenticate("non_existing_user", "random_password")
-      ).toBeRejectedWithError(UserStore.errorMessages.UserNotFound);
-      await expectAsync(
-        UserStore.authenticate(existingUser.id, "wrondpassword")
-      ).toBeRejectedWithError(UserStore.errorMessages.IncorrectPassword);
+      const authenticateResult1: Result<string> = await UserStore.authenticate(
+        "non_existing_user",
+        "random_password"
+      );
+      expect(authenticateResult1.ok).toBe(false);
+      const error1: Error = authenticateResult1.data as Error;
+      expect(error1.message).toBe(UserStore.errorMessages.UserNotFound);
+      const authenticateResult2: Result<string> = await UserStore.authenticate(
+        existingUser.id,
+        "wrondpassword"
+      );
+      const error2: Error = authenticateResult2.data as Error;
+      expect(error2.message).toBe(UserStore.errorMessages.IncorrectPassword);
     });
   });
 });
