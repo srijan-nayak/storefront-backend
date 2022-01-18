@@ -1,9 +1,12 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, json, Request, Response, urlencoded } from "express";
 import userHandler from "./routes/user";
 import { dbErrorHandler } from "./middleware";
 
 const app: Express = express();
 const PORT = 3000;
+
+app.use(urlencoded({ extended: true }));
+app.use(json());
 
 app.get("/", (_req: Request, res: Response): void => {
   res.json("root endpoint");

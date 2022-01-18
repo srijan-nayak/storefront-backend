@@ -35,4 +35,27 @@ userHandler.get(
   }
 );
 
+userHandler.post(
+  "/",
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const newUser: User = req.body as User;
+      const createResult: Result<User> = await UserStore.create(newUser);
+      if (!createResult.ok) {
+        const error: Error = createResult.data;
+        if (error.message === UserStore.errorMessages.UserAlreadyExists) {
+          res.status(409).json(error.toString());
+        } else {
+          res.status(422).json(error.toString());
+        }
+        return;
+      }
+      const createdUser: User = createResult.data;
+      res.json(createdUser);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default userHandler;
