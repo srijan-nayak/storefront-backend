@@ -2,9 +2,9 @@ import { Request, Response, Router } from "express";
 import UserStore from "../models/user";
 import { DBError } from "../database";
 
-const userHandlers: Router = Router();
+const userHandler: Router = Router();
 
-userHandlers.get("/", async (_req: Request, res: Response): Promise<void> => {
+userHandler.get("/", async (_req: Request, res: Response): Promise<void> => {
   try {
     res.json(await UserStore.index());
   } catch (error) {
@@ -12,7 +12,7 @@ userHandlers.get("/", async (_req: Request, res: Response): Promise<void> => {
   }
 });
 
-userHandlers.get("/:id", async (req: Request, res: Response): Promise<void> => {
+userHandler.get("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
     res.json(await UserStore.show(req.params["id"]));
   } catch (error) {
@@ -27,4 +27,4 @@ userHandlers.get("/:id", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-export default userHandlers;
+export default userHandler;

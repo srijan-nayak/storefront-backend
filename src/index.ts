@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from "express";
-import userHandlers from "./routes/user";
+import userHandler from "./routes/user";
 
 const app: Express = express();
 const PORT = 3000;
@@ -8,7 +8,7 @@ app.get("/", (_req: Request, res: Response): void => {
   res.json("root endpoint");
 });
 
-app.use("/user", userHandlers);
+app.use("/user", userHandler);
 
 if (require.main === module) {
   app.listen(PORT, (): void =>
