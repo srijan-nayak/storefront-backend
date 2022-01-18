@@ -28,6 +28,7 @@ type StoredUser = {
 class UserStore {
   static readonly errorMessages = {
     UserNotFound: "A user with the given ID doesn't exist",
+    InvalidFields: "User to be inserted has incorrect or empty fields",
     UserAlreadyExists: "A user with the given ID already exists",
     IncorrectPassword: "Incorrect password for the given user ID",
   };
@@ -72,6 +73,12 @@ class UserStore {
    * contains the hashed password digest, or an error
    */
   static async create(user: User): Promise<Result<User>> {
+    if (!UserStore.isValidUser(user)) {
+      return {
+        ok: false,
+        data: Error(UserStore.errorMessages.InvalidFields),
+      };
+    }
     const { id, firstName, lastName, password } = user;
     const showResult: Result<User> = await UserStore.show(id);
     if (showResult.ok) {
@@ -140,6 +147,25 @@ class UserStore {
       lastName: storedUser.last_name,
       password: storedUser.password_digest,
     };
+  }
+
+  /**
+   * Check if the given object has the shape of a user and fields are not empty.
+   *
+   * @param object any object
+   * @returns boolean value indicating if the given object is a valid user
+   */
+  private static isValidUser(object: unknown): boolean {
+    return (
+      (object as User).id !== undefined &&
+      (object as User).id !== "" &&
+      (object as User).firstName !== undefined &&
+      (object as User).firstName !== "" &&
+      (object as User).lastName !== undefined &&
+      (object as User).lastName !== "" &&
+      (object as User).password !== undefined &&
+      (object as User).password !== ""
+    );
   }
 }
 
