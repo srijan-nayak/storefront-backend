@@ -45,6 +45,7 @@ describe("POST /user", (): void => {
       password: "mindcontinually",
     };
     const response: Response = await request(app).post("/user").send(newUser);
+    expect(response.status).toBe(200);
     const user: User = response.body;
     expect(user.id).toBe(newUser.id);
     expect(user.firstName).toBe(newUser.firstName);
