@@ -1,10 +1,39 @@
 import request, { Response } from "supertest";
 import app from "../../index";
 import UserStore, { User } from "../../models/user";
+import { AuthorizationError } from "../../middleware";
+import { Result } from "../../result";
+
+export const getValidToken = async (): Promise<string> => {
+  const authorizedUser: User = {
+    id: "authorized_user",
+    firstName: "Authorized",
+    lastName: "User",
+    password: "domesticsig",
+  };
+  await UserStore.create(authorizedUser);
+  const authenticateResult: Result<string> = await UserStore.authenticate(
+    authorizedUser.id,
+    authorizedUser.password
+  );
+  if (!authenticateResult.ok) {
+    throw Error("Couldn't generate valid token");
+  }
+  return authenticateResult.data;
+};
 
 describe("GET /user", (): void => {
-  it("should return a list of all users", async (): Promise<void> => {
+  it("should return error without valid token", async (): Promise<void> => {
     const response: Response = await request(app).get("/user");
+    expect(response.status).toBe(401);
+    expect(response.body).toBe(AuthorizationError.toString());
+  });
+
+  it("should return a list of all users", async (): Promise<void> => {
+    const validToken: string = await getValidToken();
+    const response: Response = await request(app)
+      .get("/user")
+      .auth(validToken, { type: "bearer" });
     expect(response.status).toBe(200);
     const users: User[] = response.body;
     expect(users.length).toBeGreaterThan(1);
@@ -18,17 +47,30 @@ describe("GET /user", (): void => {
 });
 
 describe("GET /user/:id", (): void => {
-  it("should return details for existing user", async (): Promise<void> => {
+  it("should return error without valid token", async (): Promise<void> => {
     const existingUser: User = (await UserStore.index())[0];
     const response: Response = await request(app).get(
       `/user/${existingUser.id}`
     );
+    expect(response.status).toBe(401);
+    expect(response.body).toBe(AuthorizationError.toString());
+  });
+
+  it("should return details for existing user", async (): Promise<void> => {
+    const validToken: string = await getValidToken();
+    const existingUser: User = (await UserStore.index())[0];
+    const response: Response = await request(app)
+      .get(`/user/${existingUser.id}`)
+      .auth(validToken, { type: "bearer" });
     expect(response.status).toBe(200);
     expect(response.body).toEqual(existingUser);
   });
 
   it("should return error for non-existing user", async (): Promise<void> => {
-    const response: Response = await request(app).get("/user/some_user");
+    const validToken: string = await getValidToken();
+    const response: Response = await request(app)
+      .get("/user/some_user")
+      .auth(validToken, { type: "bearer" });
     expect(response.status).toBe(404);
     expect(response.body).toBe(
       `Error: ${UserStore.errorMessages.UserNotFound}`
