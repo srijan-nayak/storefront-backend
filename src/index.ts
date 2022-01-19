@@ -1,10 +1,12 @@
 import express, { Express, json, Request, Response, urlencoded } from "express";
 import userHandler from "./routes/user";
 import { dbErrorHandler } from "./middleware";
+import cors from "cors";
 
 const app: Express = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use(urlencoded({ extended: true }));
 app.use(json());
 
