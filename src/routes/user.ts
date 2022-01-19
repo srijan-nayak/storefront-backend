@@ -1,11 +1,13 @@
 import { NextFunction, Request, Response, Router } from "express";
 import UserStore, { User } from "../models/user";
 import { Result } from "../result";
+import { checkAuthorization } from "../middleware";
 
 const userHandler: Router = Router();
 
 userHandler.get(
   "/",
+  checkAuthorization,
   async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const users: User[] = await UserStore.index();
@@ -18,6 +20,7 @@ userHandler.get(
 
 userHandler.get(
   "/:id",
+  checkAuthorization,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId: string = req.params["id"];
