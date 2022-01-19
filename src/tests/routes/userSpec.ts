@@ -92,3 +92,40 @@ describe("POST /user", (): void => {
     );
   });
 });
+
+describe("POST /user/authenticate", (): void => {
+  it("should return JWT for correct credentials", async (): Promise<void> => {
+    const user: User = {
+      id: "ayla_meika",
+      firstName: "Ayla",
+      lastName: "Meika",
+      password: "jammetadata",
+    };
+    await UserStore.create(user);
+    const response: Response = await request(app)
+      .post("/user/authenticate")
+      .send({ id: user.id, password: user.password });
+    expect(response.status).toBe(200);
+    const jwt: string = response.body;
+    expect(typeof jwt).toBe("string");
+  });
+
+  it("should return error for incorrect credentials", async () => {
+    const response1: Response = await request(app)
+      .post("/user/authenticate")
+      .send({ id: "non_existing_user", password: "randompassword" });
+    expect(response1.status).toBe(404);
+    expect(response1.body).toBe(
+      `Error: ${UserStore.errorMessages.UserNotFound}`
+    );
+
+    const existingUser: User = (await UserStore.index())[0];
+    const response2: Response = await request(app)
+      .post("/user/authenticate")
+      .send({ id: existingUser.id, password: "wrondpassword" });
+    expect(response2.status).toBe(401);
+    expect(response2.body).toBe(
+      `Error: ${UserStore.errorMessages.IncorrectPassword}`
+    );
+  });
+});
