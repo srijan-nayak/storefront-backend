@@ -73,7 +73,7 @@ describe("UserStore", (): void => {
       expect(user).toEqual(existingUser);
     });
 
-    it("should throw error for non-existing user", async (): Promise<void> => {
+    it("should return error for non-existing user", async (): Promise<void> => {
       const showResult: Result<User> = await UserStore.show(
         "non_existing_user"
       );
@@ -101,8 +101,7 @@ describe("UserStore", (): void => {
       expect(typeof jwt).toBe("string");
     });
 
-    it("should throw error for incorrect credentials", async () => {
-      const existingUser: User = (await UserStore.index())[0];
+    it("should return error for incorrect credentials", async () => {
       const authenticateResult1: Result<string> = await UserStore.authenticate(
         "non_existing_user",
         "random_password"
@@ -110,10 +109,13 @@ describe("UserStore", (): void => {
       expect(authenticateResult1.ok).toBe(false);
       const error1: Error = authenticateResult1.data as Error;
       expect(error1.message).toBe(UserStore.errorMessages.UserNotFound);
+
+      const existingUser: User = (await UserStore.index())[0];
       const authenticateResult2: Result<string> = await UserStore.authenticate(
         existingUser.id,
-        "wrondpassword"
+        "wrongpassword"
       );
+      expect(authenticateResult2.ok).toBe(false);
       const error2: Error = authenticateResult2.data as Error;
       expect(error2.message).toBe(UserStore.errorMessages.IncorrectPassword);
     });
