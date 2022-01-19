@@ -58,4 +58,32 @@ userHandler.post(
   }
 );
 
+userHandler.post(
+  "/authenticate",
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId: string = req.body.id;
+      const password: string = req.body.password;
+      const authenticateResult: Result<string> = await UserStore.authenticate(
+        userId,
+        password
+      );
+      if (!authenticateResult.ok) {
+        const error: Error = authenticateResult.data;
+        if (error.message === UserStore.errorMessages.UserNotFound) {
+          res.status(404);
+        } else {
+          res.status(401);
+        }
+        res.json(error.toString());
+        return;
+      }
+      const jwt: string = authenticateResult.data;
+      res.json(jwt);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default userHandler;
