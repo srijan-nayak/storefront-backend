@@ -4,6 +4,12 @@ import dotenv from "dotenv";
 import { compare, hash } from "bcrypt";
 import { sign } from "jsonwebtoken";
 import { Result } from "../result";
+import {
+  UserAlreadyExistsError,
+  UserFieldsIncorrectError,
+  UserNotFoundError,
+  UserPasswordIncorrectError,
+} from "../errors";
 
 dotenv.config();
 const env: NodeJS.ProcessEnv = process.env;
@@ -26,13 +32,6 @@ type StoredUser = {
 };
 
 class UserStore {
-  static readonly errorMessages = {
-    UserNotFound: "User with the given ID doesn't exist",
-    InvalidFields: "User to be inserted has incorrect or empty fields",
-    UserAlreadyExists: "User with the given ID already exists",
-    IncorrectPassword: "Incorrect password for the given user ID",
-  };
-
   /**
    * Gets a list of all users in the database.
    *
@@ -58,7 +57,7 @@ class UserStore {
       [userId]
     );
     if (!result.rows[0]) {
-      return { ok: false, data: Error(UserStore.errorMessages.UserNotFound) };
+      return { ok: false, data: UserNotFoundError };
     }
     return { ok: true, data: UserStore.storedUserToUser(result.rows[0]) };
   }
@@ -76,7 +75,7 @@ class UserStore {
     if (!UserStore.isValidUser(user)) {
       return {
         ok: false,
-        data: Error(UserStore.errorMessages.InvalidFields),
+        data: UserFieldsIncorrectError,
       };
     }
     const { id, firstName, lastName, password } = user;
@@ -84,7 +83,7 @@ class UserStore {
     if (showResult.ok) {
       return {
         ok: false,
-        data: Error(UserStore.errorMessages.UserAlreadyExists),
+        data: UserAlreadyExistsError,
       };
     }
     const passwordDigest: string = await hash(
@@ -128,7 +127,7 @@ class UserStore {
     if (!isPasswordCorrect) {
       return {
         ok: false,
-        data: Error(UserStore.errorMessages.IncorrectPassword),
+        data: UserPasswordIncorrectError,
       };
     }
     return { ok: true, data: sign(user, env["JWT_SECRET"] as string) };

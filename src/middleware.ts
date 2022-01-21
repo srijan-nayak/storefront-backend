@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { DBError } from "./database";
 import { verify } from "jsonwebtoken";
 import dotenv from "dotenv";
+import { AuthorizationError, DBError } from "./errors";
 
 dotenv.config();
 const env = process.env;
@@ -15,10 +15,6 @@ export const dbErrorHandler = (
 ): void => {
   res.status(500).json(DBError.toString());
 };
-
-export const AuthorizationError: Error = Error(
-  "Authorization token missing or invalid"
-);
 
 export const checkAuthorization = async (
   req: Request,

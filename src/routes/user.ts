@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import UserStore, { User } from "../models/user";
 import { Result } from "../result";
 import { checkAuthorization } from "../middleware";
+import { UserAlreadyExistsError, UserNotFoundError } from "../errors";
 
 const userHandler: Router = Router();
 
@@ -46,7 +47,7 @@ userHandler.post(
       const createResult: Result<User> = await UserStore.create(newUser);
       if (!createResult.ok) {
         const error: Error = createResult.data;
-        if (error.message === UserStore.errorMessages.UserAlreadyExists) {
+        if (error === UserAlreadyExistsError) {
           res.status(409).json(error.toString());
         } else {
           res.status(422).json(error.toString());
@@ -73,7 +74,7 @@ userHandler.post(
       );
       if (!authenticateResult.ok) {
         const error: Error = authenticateResult.data;
-        if (error.message === UserStore.errorMessages.UserNotFound) {
+        if (error === UserNotFoundError) {
           res.status(404);
         } else {
           res.status(401);
