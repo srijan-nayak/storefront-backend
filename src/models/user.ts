@@ -27,9 +27,9 @@ type StoredUser = {
 
 class UserStore {
   static readonly errorMessages = {
-    UserNotFound: "A user with the given ID doesn't exist",
+    UserNotFound: "User with the given ID doesn't exist",
     InvalidFields: "User to be inserted has incorrect or empty fields",
-    UserAlreadyExists: "A user with the given ID already exists",
+    UserAlreadyExists: "User with the given ID already exists",
     IncorrectPassword: "Incorrect password for the given user ID",
   };
 
