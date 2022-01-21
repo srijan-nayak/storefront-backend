@@ -153,7 +153,7 @@ describe("POST /user/authenticate", (): void => {
     expect(typeof jwt).toBe("string");
   });
 
-  it("should return error for incorrect credentials", async () => {
+  it("should return error for incorrect credentials", async (): Promise<void> => {
     const response1: Response = await request(app)
       .post("/user/authenticate")
       .send({ id: "non_existing_user", password: "randompassword" });

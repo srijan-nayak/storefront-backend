@@ -83,7 +83,7 @@ describe("UserStore", (): void => {
     });
   });
 
-  describe("authenticate method", () => {
+  describe("authenticate method", (): void => {
     it("should return JWT for correct credentials", async (): Promise<void> => {
       const user: User = {
         id: "ayla_meika",
@@ -101,7 +101,7 @@ describe("UserStore", (): void => {
       expect(typeof jwt).toBe("string");
     });
 
-    it("should return error for incorrect credentials", async () => {
+    it("should return error for incorrect credentials", async (): Promise<void> => {
       const authenticateResult1: Result<string> = await UserStore.authenticate(
         "non_existing_user",
         "random_password"

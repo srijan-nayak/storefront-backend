@@ -12,7 +12,7 @@ export const dbErrorHandler = (
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
-) => {
+): void => {
   res.status(500).json(DBError.toString());
 };
 
