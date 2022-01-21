@@ -1,5 +1,11 @@
 import UserStore, { User } from "../../models/user";
 import { Result } from "../../result";
+import {
+  UserAlreadyExistsError,
+  UserFieldsIncorrectError,
+  UserNotFoundError,
+  UserPasswordIncorrectError,
+} from "../../errors";
 
 describe("UserStore", (): void => {
   describe("index method", (): void => {
@@ -36,8 +42,7 @@ describe("UserStore", (): void => {
       const duplicateUser: User = (await UserStore.index())[0];
       const createResult: Result<User> = await UserStore.create(duplicateUser);
       expect(createResult.ok).toBe(false);
-      const error: Error = createResult.data as Error;
-      expect(error.message).toBe(UserStore.errorMessages.UserAlreadyExists);
+      expect(createResult.data).toBe(UserAlreadyExistsError);
     });
 
     it("should return error for invalid user data", async (): Promise<void> => {
@@ -48,8 +53,7 @@ describe("UserStore", (): void => {
       } as User;
       const createResult1: Result<User> = await UserStore.create(invalidUser1);
       expect(createResult1.ok).toBe(false);
-      const error1: Error = createResult1.data as Error;
-      expect(error1.message).toBe(UserStore.errorMessages.InvalidFields);
+      expect(createResult1.data).toBe(UserFieldsIncorrectError);
 
       const invalidUser2: User = {
         id: "nereida_towana",
@@ -59,8 +63,7 @@ describe("UserStore", (): void => {
       };
       const createResult2: Result<User> = await UserStore.create(invalidUser2);
       expect(createResult2.ok).toBe(false);
-      const error2: Error = createResult2.data as Error;
-      expect(error2.message).toBe(UserStore.errorMessages.InvalidFields);
+      expect(createResult2.data).toBe(UserFieldsIncorrectError);
     });
   });
 
@@ -78,8 +81,7 @@ describe("UserStore", (): void => {
         "non_existing_user"
       );
       expect(showResult.ok).toBe(false);
-      const error: Error = showResult.data as Error;
-      expect(error.message).toBe(UserStore.errorMessages.UserNotFound);
+      expect(showResult.data).toBe(UserNotFoundError);
     });
   });
 
@@ -107,8 +109,7 @@ describe("UserStore", (): void => {
         "random_password"
       );
       expect(authenticateResult1.ok).toBe(false);
-      const error1: Error = authenticateResult1.data as Error;
-      expect(error1.message).toBe(UserStore.errorMessages.UserNotFound);
+      expect(authenticateResult1.data).toBe(UserNotFoundError);
 
       const existingUser: User = (await UserStore.index())[0];
       const authenticateResult2: Result<string> = await UserStore.authenticate(
@@ -116,8 +117,7 @@ describe("UserStore", (): void => {
         "wrongpassword"
       );
       expect(authenticateResult2.ok).toBe(false);
-      const error2: Error = authenticateResult2.data as Error;
-      expect(error2.message).toBe(UserStore.errorMessages.IncorrectPassword);
+      expect(authenticateResult2.data).toBe(UserPasswordIncorrectError);
     });
   });
 });

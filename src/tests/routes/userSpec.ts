@@ -1,8 +1,14 @@
 import request, { Response } from "supertest";
 import app from "../../index";
 import UserStore, { User } from "../../models/user";
-import { AuthorizationError } from "../../middleware";
 import { Result } from "../../result";
+import {
+  AuthorizationError,
+  UserAlreadyExistsError,
+  UserFieldsIncorrectError,
+  UserNotFoundError,
+  UserPasswordIncorrectError,
+} from "../../errors";
 
 export const getValidToken = async (): Promise<string> => {
   const authorizedUser: User = {
@@ -72,9 +78,7 @@ describe("GET /user/:id", (): void => {
       .get("/user/some_user")
       .auth(validToken, { type: "bearer" });
     expect(response.status).toBe(404);
-    expect(response.body).toBe(
-      `Error: ${UserStore.errorMessages.UserNotFound}`
-    );
+    expect(response.body).toBe(UserNotFoundError.toString());
   });
 });
 
@@ -101,9 +105,7 @@ describe("POST /user", (): void => {
       .post("/user")
       .send(duplicateUser);
     expect(response.status).toBe(409);
-    expect(response.body).toBe(
-      `Error: ${UserStore.errorMessages.UserAlreadyExists}`
-    );
+    expect(response.body).toBe(UserAlreadyExistsError.toString());
   });
 
   it("should return error for invalid user data", async (): Promise<void> => {
@@ -116,9 +118,7 @@ describe("POST /user", (): void => {
       .post("/user")
       .send(invalidUser1);
     expect(response1.status).toBe(422);
-    expect(response1.body).toBe(
-      `Error: ${UserStore.errorMessages.InvalidFields}`
-    );
+    expect(response1.body).toBe(UserFieldsIncorrectError.toString());
 
     const invalidUser2: User = {
       id: "nereida_towana",
@@ -130,9 +130,7 @@ describe("POST /user", (): void => {
       .post("/user")
       .send(invalidUser2);
     expect(response2.status).toBe(422);
-    expect(response2.body).toBe(
-      `Error: ${UserStore.errorMessages.InvalidFields}`
-    );
+    expect(response2.body).toBe(UserFieldsIncorrectError.toString());
   });
 });
 
@@ -158,17 +156,13 @@ describe("POST /user/authenticate", (): void => {
       .post("/user/authenticate")
       .send({ id: "non_existing_user", password: "randompassword" });
     expect(response1.status).toBe(404);
-    expect(response1.body).toBe(
-      `Error: ${UserStore.errorMessages.UserNotFound}`
-    );
+    expect(response1.body).toBe(UserNotFoundError.toString());
 
     const existingUser: User = (await UserStore.index())[0];
     const response2: Response = await request(app)
       .post("/user/authenticate")
       .send({ id: existingUser.id, password: "wrondpassword" });
     expect(response2.status).toBe(401);
-    expect(response2.body).toBe(
-      `Error: ${UserStore.errorMessages.IncorrectPassword}`
-    );
+    expect(response2.body).toBe(UserPasswordIncorrectError.toString());
   });
 });
