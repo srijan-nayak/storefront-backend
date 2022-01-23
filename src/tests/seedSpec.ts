@@ -50,11 +50,11 @@ beforeEach(async (): Promise<void> => {
   }
 
   for (const product of sampleProducts) {
-    const { name, price, category } = product;
+    const { id, name, price, category } = product;
     await client.query(
-      `insert into products (name, price, category)
-       values ($1, $2, $3)`,
-      [name, price, category]
+      `insert into products
+       values ($1, $2, $3, $4)`,
+      [id, name, price, category]
     );
   }
 
