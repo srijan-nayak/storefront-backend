@@ -19,3 +19,7 @@ export const UserAlreadyExistsError: Error = Error(
 export const UserPasswordIncorrectError: Error = Error(
   "Incorrect password for the given user ID"
 );
+
+export const ProductNotFoundError: Error = Error(
+  "Product with the given ID doesn't exist"
+);
