@@ -89,15 +89,6 @@ class UserStore {
     return { ok: true, data: createdUser };
   }
 
-  /**
-   * Takes user id and password of an existing user and returns a JWT if
-   * credentials are correct. Throws error for incorrect credentials.
-   *
-   * @param userId user ID of the user
-   * @param password plain text password of the user
-   *
-   * @returns result object containing JSON web token or an error
-   */
   static async authenticate(
     userId: string,
     password: PasswordPlainText
@@ -109,10 +100,11 @@ class UserStore {
         data: showResult.data,
       };
     }
-    const user: User = showResult.data;
-    const isPasswordCorrect = await compare(
+
+    const foundUser: User = showResult.data;
+    const isPasswordCorrect: boolean = await compare(
       password + env["PEPPER"],
-      user.password
+      foundUser.password
     );
     if (!isPasswordCorrect) {
       return {
@@ -120,7 +112,9 @@ class UserStore {
         data: UserPasswordIncorrectError,
       };
     }
-    return { ok: true, data: sign(user, env["JWT_SECRET"] as string) };
+
+    const jwt: string = sign(foundUser, env["JWT_SECRET"] as string);
+    return { ok: true, data: jwt };
   }
 
   /**
