@@ -32,16 +32,14 @@ type StoredUser = {
 };
 
 class UserStore {
-  /**
-   * Gets a list of all users in the database.
-   *
-   * @returns list of all users in database
-   */
   static async index(): Promise<User[]> {
-    const result: QueryResult<StoredUser> = await pgPool.query(
+    const queryResult: QueryResult<StoredUser> = await pgPool.query(
       "select * from users"
     );
-    return result.rows.map(UserStore.storedUserToUser);
+    const convertedUsers: User[] = queryResult.rows.map(
+      UserStore.storedUserToUser
+    );
+    return convertedUsers;
   }
 
   /**
