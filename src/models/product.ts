@@ -36,13 +36,6 @@ class ProductStore {
     return { ok: true, data: foundProduct };
   }
 
-  /**
-   * Create and insert a new product into the database. Throws an error if a
-   * product to be created has invalid fields.
-   *
-   * @param product new product to be created
-   * @returns result object containing created product or an error
-   */
   static async create(product: Product): Promise<Result<Product>> {
     if (!ProductStore.isValidProduct(product)) {
       return {
@@ -50,14 +43,17 @@ class ProductStore {
         data: ProductFieldsIncorrectError,
       };
     }
+
     const { name, price, category } = product;
-    const result: QueryResult<Product> = await pgPool.query(
+    const queryResult: QueryResult<Product> = await pgPool.query(
       `insert into products (name, price, category)
        values ($1, $2, $3)
        returning id, name, price::numeric::double precision, category`,
       [name, price, category]
     );
-    return { ok: true, data: result.rows[0] };
+
+    const createdProduct = queryResult.rows[0];
+    return { ok: true, data: createdProduct };
   }
 
   /**
