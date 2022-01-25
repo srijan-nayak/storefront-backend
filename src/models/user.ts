@@ -117,12 +117,6 @@ class UserStore {
     return { ok: true, data: jwt };
   }
 
-  /**
-   * Convert the field names of a StoredUser to that of a User.
-   *
-   * @param storedUser
-   * @returns object with converted field names to match User type
-   */
   private static storedUserToUser(storedUser: StoredUser): User {
     return {
       id: storedUser.id,
@@ -132,12 +126,6 @@ class UserStore {
     };
   }
 
-  /**
-   * Check if the given object has the shape of a user and fields are not empty.
-   *
-   * @param object any object
-   * @returns boolean value indicating if the given object is a valid user
-   */
   private static isValidUser(object: unknown): boolean {
     return (
       (object as User).id !== undefined &&
