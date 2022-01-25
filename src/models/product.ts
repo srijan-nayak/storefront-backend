@@ -56,12 +56,6 @@ class ProductStore {
     return { ok: true, data: createdProduct };
   }
 
-  /**
-   * Check if the given object has the shape of a product and fields are valid.
-   *
-   * @param object any object
-   * @returns boolean value indicating if the given object is a valid product
-   */
   private static isValidProduct(object: unknown): boolean {
     return (
       (object as Product).name !== undefined &&
