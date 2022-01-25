@@ -21,10 +21,10 @@ describe("ProductStore", (): void => {
 
   describe("show method", (): void => {
     it("should return details for existing product", async (): Promise<void> => {
-      const showResult: Result<Product> = await ProductStore.show(4);
+      const showResult: Result<Product> = await ProductStore.show(104);
       expect(showResult.ok).toBe(true);
       const product: Product = showResult.data as Product;
-      expect(product.id).toBe(4);
+      expect(product.id).toBe(104);
       expect(product.name).toBe("Rustic Steel Hat");
       expect(product.price).toBe(20.13);
       expect(product.category).toBe("Clothing");
@@ -37,7 +37,7 @@ describe("ProductStore", (): void => {
     });
   });
 
-  fdescribe("create method", (): void => {
+  describe("create method", (): void => {
     it("should return created product", async (): Promise<void> => {
       const newProduct: Product = {
         name: "Sleek Steel Gloves",
