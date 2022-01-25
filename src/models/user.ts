@@ -57,15 +57,6 @@ class UserStore {
     return { ok: true, data: convertedUser };
   }
 
-  /**
-   * Create and insert a new user into the database. Throws an error if a user
-   * already exists with the same user ID in the database.
-   *
-   * @param user new user to be created, password field should contain the plain
-   * text password
-   * @returns result object containing created user, where password field
-   * contains the hashed password digest, or an error
-   */
   static async create(user: User): Promise<Result<User>> {
     if (!UserStore.isValidUser(user)) {
       return {
@@ -73,7 +64,8 @@ class UserStore {
         data: UserFieldsIncorrectError,
       };
     }
-    const { id, firstName, lastName, password } = user;
+
+    const { id, firstName, lastName, password: plaintextPassword } = user;
     const showResult: Result<User> = await UserStore.show(id);
     if (showResult.ok) {
       return {
@@ -81,17 +73,20 @@ class UserStore {
         data: UserAlreadyExistsError,
       };
     }
+
     const passwordDigest: string = await hash(
-      password + env["PEPPER"],
+      plaintextPassword + env["PEPPER"],
       parseInt(env["SALT_ROUNDS"] as string)
     );
-    const result: QueryResult<StoredUser> = await pgPool.query(
+    const queryResult: QueryResult<StoredUser> = await pgPool.query(
       `insert into users (id, first_name, last_name, password_digest)
        values ($1, $2, $3, $4)
        returning *`,
       [id, firstName, lastName, passwordDigest]
     );
-    return { ok: true, data: UserStore.storedUserToUser(result.rows[0]) };
+
+    const createdUser: User = UserStore.storedUserToUser(queryResult.rows[0]);
+    return { ok: true, data: createdUser };
   }
 
   /**
