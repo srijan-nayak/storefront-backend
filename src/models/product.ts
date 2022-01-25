@@ -20,24 +20,20 @@ class ProductStore {
     return products;
   }
 
-  /**
-   * Gets all product details for a given product id. Returns an error if
-   * product with given ID doesn't exist.
-   *
-   * @param productId product ID of product whose details are to be shown
-   * @returns result object containing either the product details or an error
-   */
   static async show(productId: number): Promise<Result<Product>> {
-    const result: QueryResult<Product> = await pgPool.query(
+    const queryResult: QueryResult<Product> = await pgPool.query(
       `select id, name, price::numeric::double precision, category
        from products
        where id = $1`,
       [productId]
     );
-    if (!result.rows[0]) {
+
+    const foundProduct = queryResult.rows[0];
+    if (!foundProduct) {
       return { ok: false, data: ProductNotFoundError };
     }
-    return { ok: true, data: result.rows[0] };
+
+    return { ok: true, data: foundProduct };
   }
 
   /**
