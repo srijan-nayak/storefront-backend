@@ -23,3 +23,7 @@ export const UserPasswordIncorrectError: Error = Error(
 export const ProductNotFoundError: Error = Error(
   "Product with the given ID doesn't exist"
 );
+
+export const ProductFieldsIncorrectError: Error = Error(
+  "Product has incorrect or empty fields"
+);
