@@ -42,22 +42,19 @@ class UserStore {
     return convertedUsers;
   }
 
-  /**
-   * Gets all user details for a given user ID. Returns an error if user with
-   * given ID doesn't exist.
-   *
-   * @param userId user ID of user whose details are to be shown
-   * @returns result object containing either the user details or an error
-   */
   static async show(userId: string): Promise<Result<User>> {
-    const result: QueryResult<StoredUser> = await pgPool.query(
+    const queryResult: QueryResult<StoredUser> = await pgPool.query(
       "select * from users where id = $1",
       [userId]
     );
-    if (!result.rows[0]) {
+
+    const foundUser: StoredUser | undefined = queryResult.rows[0];
+    if (!foundUser) {
       return { ok: false, data: UserNotFoundError };
     }
-    return { ok: true, data: UserStore.storedUserToUser(result.rows[0]) };
+
+    const convertedUser: User = UserStore.storedUserToUser(foundUser);
+    return { ok: true, data: convertedUser };
   }
 
   /**
