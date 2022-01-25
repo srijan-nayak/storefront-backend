@@ -24,12 +24,12 @@ const sampleUsers: User[] = [
 ];
 
 const sampleProducts: Product[] = [
-  { id: 1, name: "Fantastic Frozen Hat", price: 8.12, category: "Clothing" },
-  { id: 2, name: "Refined Steel Chair", price: 45.34, category: "Furniture" },
-  { id: 3, name: "Sleek Frozen Chair", price: 38.34, category: "Furniture" },
-  { id: 4, name: "Rustic Steel Hat", price: 20.13, category: "Clothing" },
-  { id: 5, name: "Refined Granite Gloves", price: 60.23, category: "Clothing" },
-  { id: 6, name: "Sleek Granite Salad", price: 15.14, category: "Food" },
+  { id: 101, name: "Fantastic Frozen Hat", price: 8.12, category: "Clothing" },
+  { id: 102, name: "Refined Steel Chair", price: 45.34, category: "Furniture" },
+  { id: 103, name: "Sleek Frozen Chair", price: 38.34, category: "Furniture" },
+  { id: 104, name: "Rustic Steel Hat", price: 20.13, category: "Clothing" },
+  { id: 105, name: "Sleek Granite Gloves", price: 60.23, category: "Clothing" },
+  { id: 106, name: "Sleek Granite Salad", price: 15.14, category: "Food" },
 ];
 
 beforeEach(async (): Promise<void> => {
