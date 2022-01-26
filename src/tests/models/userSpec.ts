@@ -21,6 +21,24 @@ describe("UserStore", (): void => {
     });
   });
 
+  describe("show method", (): void => {
+    it("should return details for existing user", async (): Promise<void> => {
+      const existingUser: User = (await UserStore.index())[0];
+      const showResult: Result<User> = await UserStore.show(existingUser.id);
+      expect(showResult.ok).toBe(true);
+      const user: User = showResult.data as User;
+      expect(user).toEqual(existingUser);
+    });
+
+    it("should return error for non-existing user", async (): Promise<void> => {
+      const showResult: Result<User> = await UserStore.show(
+        "non_existing_user"
+      );
+      expect(showResult.ok).toBe(false);
+      expect(showResult.data).toBe(UserNotFoundError);
+    });
+  });
+
   describe("create method", (): void => {
     it("should return created user", async (): Promise<void> => {
       const newUser: User = {
@@ -64,24 +82,6 @@ describe("UserStore", (): void => {
       const createResult2: Result<User> = await UserStore.create(invalidUser2);
       expect(createResult2.ok).toBe(false);
       expect(createResult2.data).toBe(UserFieldsIncorrectError);
-    });
-  });
-
-  describe("show method", (): void => {
-    it("should return details for existing user", async (): Promise<void> => {
-      const existingUser: User = (await UserStore.index())[0];
-      const showResult: Result<User> = await UserStore.show(existingUser.id);
-      expect(showResult.ok).toBe(true);
-      const user: User = showResult.data as User;
-      expect(user).toEqual(existingUser);
-    });
-
-    it("should return error for non-existing user", async (): Promise<void> => {
-      const showResult: Result<User> = await UserStore.show(
-        "non_existing_user"
-      );
-      expect(showResult.ok).toBe(false);
-      expect(showResult.data).toBe(UserNotFoundError);
     });
   });
 
