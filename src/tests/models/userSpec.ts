@@ -23,11 +23,13 @@ describe("UserStore", (): void => {
 
   describe("show method", (): void => {
     it("should return details for existing user", async (): Promise<void> => {
-      const existingUser: User = (await UserStore.index())[0];
-      const showResult: Result<User> = await UserStore.show(existingUser.id);
+      const showResult: Result<User> = await UserStore.show("april_serra");
       expect(showResult.ok).toBe(true);
       const user: User = showResult.data as User;
-      expect(user).toEqual(existingUser);
+      expect(user.id).toBe("april_serra");
+      expect(user.firstName).toBe("April");
+      expect(user.lastName).toBe("Serra");
+      expect(typeof user.password).toBe("string");
     });
 
     it("should return error for non-existing user", async (): Promise<void> => {
@@ -57,7 +59,12 @@ describe("UserStore", (): void => {
     });
 
     it("should return error for duplicate user id", async (): Promise<void> => {
-      const duplicateUser: User = (await UserStore.index())[0];
+      const duplicateUser: User = {
+        id: "antasia_marjory",
+        firstName: "Antasia",
+        lastName: "Marjory",
+        password: "canadanervous",
+      };
       const createResult: Result<User> = await UserStore.create(duplicateUser);
       expect(createResult.ok).toBe(false);
       expect(createResult.data).toBe(UserAlreadyExistsError);
@@ -87,16 +94,9 @@ describe("UserStore", (): void => {
 
   describe("authenticate method", (): void => {
     it("should return JWT for correct credentials", async (): Promise<void> => {
-      const user: User = {
-        id: "ayla_meika",
-        firstName: "Ayla",
-        lastName: "Meika",
-        password: "jammetadata",
-      };
-      await UserStore.create(user);
       const result: Result<string> = await UserStore.authenticate(
-        user.id,
-        user.password
+        "april_serra",
+        "husbandpope"
       );
       expect(result.ok).toBe(true);
       const jwt: string = result.data as string;
@@ -111,9 +111,8 @@ describe("UserStore", (): void => {
       expect(authenticateResult1.ok).toBe(false);
       expect(authenticateResult1.data).toBe(UserNotFoundError);
 
-      const existingUser: User = (await UserStore.index())[0];
       const authenticateResult2: Result<string> = await UserStore.authenticate(
-        existingUser.id,
+        "antasia_marjory",
         "wrongpassword"
       );
       expect(authenticateResult2.ok).toBe(false);
