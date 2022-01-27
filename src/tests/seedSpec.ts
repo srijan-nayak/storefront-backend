@@ -4,6 +4,7 @@ import { User } from "../models/user";
 import { hash } from "bcrypt";
 import dotenv from "dotenv";
 import { Product } from "../models/product";
+import { StoredOrder, StoredOrderProduct } from "../models/order";
 
 dotenv.config();
 const env = process.env;
@@ -32,6 +33,21 @@ const sampleProducts: Product[] = [
   { id: 106, name: "Sleek Granite Salad", price: 15.14, category: "Food" },
 ];
 
+const sampleOrders: StoredOrder[] = [
+  { id: 201, user_id: "april_serra", completed: false },
+  { id: 202, user_id: "antasia_marjory", completed: false },
+];
+
+const sampleOrderProducts: StoredOrderProduct[] = [
+  { order_id: 201, product_id: 103, quantity: 8 },
+  { order_id: 201, product_id: 102, quantity: 4 },
+  { order_id: 201, product_id: 106, quantity: 1 },
+  { order_id: 202, product_id: 104, quantity: 3 },
+  { order_id: 202, product_id: 105, quantity: 2 },
+  { order_id: 202, product_id: 103, quantity: 6 },
+  { order_id: 202, product_id: 101, quantity: 6 },
+];
+
 beforeEach(async (): Promise<void> => {
   const client: PoolClient = await pgPool.connect();
 
@@ -55,6 +71,24 @@ beforeEach(async (): Promise<void> => {
       `insert into products
        values ($1, $2, $3, $4)`,
       [id, name, price, category]
+    );
+  }
+
+  for (const order of sampleOrders) {
+    const { id, user_id, completed } = order;
+    await client.query(
+      `insert into orders
+       values ($1, $2, $3)`,
+      [id, user_id, completed]
+    );
+  }
+
+  for (const orderProduct of sampleOrderProducts) {
+    const { order_id, product_id, quantity } = orderProduct;
+    await client.query(
+      `insert into order_products
+       values ($1, $2, $3)`,
+      [order_id, product_id, quantity]
     );
   }
 
