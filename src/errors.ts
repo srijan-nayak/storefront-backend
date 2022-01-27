@@ -27,3 +27,7 @@ export const ProductNotFoundError: Error = Error(
 export const ProductFieldsIncorrectError: Error = Error(
   "Product has incorrect or empty fields"
 );
+
+export const OrderFieldsIncorrectError: Error = Error(
+  "Order has incorrect or empty fields"
+);
