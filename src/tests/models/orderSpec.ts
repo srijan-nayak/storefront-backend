@@ -31,7 +31,7 @@ describe("OrderStore", (): void => {
         userId: "antasia_marjory",
       };
       const createResult1: Result<Order> = await OrderStore.create(
-        invalidOrder1
+        invalidOrder1 as Order
       );
       expect(createResult1.ok).toBe(false);
       expect(createResult1.data).toBe(OrderFieldsIncorrectError);
@@ -42,7 +42,7 @@ describe("OrderStore", (): void => {
         userId: "antasia_marjory",
       };
       const createResult2: Result<Order> = await OrderStore.create(
-        invalidOrder2
+        invalidOrder2 as Order
       );
       expect(createResult2.ok).toBe(false);
       expect(createResult2.data).toBe(OrderFieldsIncorrectError);
@@ -52,7 +52,7 @@ describe("OrderStore", (): void => {
         productQuantities: [2, 1],
       };
       const createResult3: Result<Order> = await OrderStore.create(
-        invalidOrder3
+        invalidOrder3 as Order
       );
       expect(createResult3.ok).toBe(false);
       expect(createResult3.data).toBe(OrderFieldsIncorrectError);
