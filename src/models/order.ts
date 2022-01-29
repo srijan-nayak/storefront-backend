@@ -141,7 +141,8 @@ class OrderStore {
            returning *`,
           [orderId, productIds[i], productQuantities[i]]
         );
-      storedOrderProducts.push(insertOrderProductQueryResult.rows[0]);
+      const storedOrderProduct = insertOrderProductQueryResult.rows[0];
+      storedOrderProducts.push(storedOrderProduct);
     }
     client.release();
 
@@ -192,11 +193,9 @@ class OrderStore {
   }
 
   private static async getUserOrders(storedOrders: StoredOrder[]) {
-    const orders: Order[] = new Array(storedOrders.length);
+    const orders: Order[] = [];
 
-    for (let i = 0; i < storedOrders.length; i++) {
-      const storedOrder: StoredOrder = storedOrders[i];
-
+    for (const storedOrder of storedOrders) {
       const selectOrderProductsQueryResult: QueryResult<StoredOrderProduct> =
         await pgPool.query(
           `select *
@@ -211,7 +210,7 @@ class OrderStore {
         storedOrder,
         storedOrderProducts
       );
-      orders[i] = order;
+      orders.push(order);
     }
 
     return orders;
