@@ -1,5 +1,5 @@
 import { Result } from "../result";
-import { OrderFieldsIncorrectError } from "../errors";
+import { OrderFieldsIncorrectError, UserOrdersNotFoundError } from "../errors";
 import ProductStore, { Product } from "./product";
 import UserStore, { User } from "./user";
 import { PoolClient, QueryResult } from "pg";
@@ -50,6 +50,17 @@ class OrderStore {
       storedOrderProducts
     );
     return { ok: true, data: createdOrder };
+  }
+
+  static async showUserOrders(userId: string): Promise<Result<Order[]>> {
+    const userStoredOrdersGetResult: Result<StoredOrder[]> =
+      await OrderStore.getUserStoredOrders(userId);
+    if (!userStoredOrdersGetResult.ok) return userStoredOrdersGetResult;
+    const storedOrders: StoredOrder[] = userStoredOrdersGetResult.data;
+
+    const orders: Order[] = await OrderStore.getUserOrders(storedOrders);
+
+    return { ok: true, data: orders };
   }
 
   private static async validateOrder(
@@ -157,6 +168,53 @@ class OrderStore {
       userId,
       isCompleted,
     };
+  }
+
+  private static async getUserStoredOrders(
+    userId: string
+  ): Promise<Result<StoredOrder[]>> {
+    const showUserResult: Result<User> = await UserStore.show(userId);
+    if (!showUserResult.ok) return showUserResult;
+
+    const selectOrdersQueryResult: QueryResult<StoredOrder> =
+      await pgPool.query(
+        `select *
+         from orders
+         where user_id = $1`,
+        [userId]
+      );
+    if (selectOrdersQueryResult.rows.length === 0) {
+      return { ok: false, data: UserOrdersNotFoundError };
+    }
+
+    const storedOrders: StoredOrder[] = selectOrdersQueryResult.rows;
+    return { ok: true, data: storedOrders };
+  }
+
+  private static async getUserOrders(storedOrders: StoredOrder[]) {
+    const orders: Order[] = new Array(storedOrders.length);
+
+    for (let i = 0; i < storedOrders.length; i++) {
+      const storedOrder: StoredOrder = storedOrders[i];
+
+      const selectOrderProductsQueryResult: QueryResult<StoredOrderProduct> =
+        await pgPool.query(
+          `select *
+           from order_products
+           where order_id = $1`,
+          [storedOrder.id]
+        );
+      const storedOrderProducts: StoredOrderProduct[] =
+        selectOrderProductsQueryResult.rows;
+
+      const order: Order = OrderStore.convertToOrder(
+        storedOrder,
+        storedOrderProducts
+      );
+      orders[i] = order;
+    }
+
+    return orders;
   }
 }
 
