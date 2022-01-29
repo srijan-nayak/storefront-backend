@@ -22,6 +22,12 @@ const sampleUsers: User[] = [
     lastName: "Serra",
     password: "husbandpope",
   },
+  {
+    id: "taysia_amylynn",
+    firstName: "Taysia",
+    lastName: "Amylynn",
+    password: "gramsblogger",
+  },
 ];
 
 const sampleProducts: Product[] = [
@@ -36,6 +42,7 @@ const sampleProducts: Product[] = [
 const sampleOrders: StoredOrder[] = [
   { id: 201, user_id: "april_serra", completed: false },
   { id: 202, user_id: "antasia_marjory", completed: false },
+  { id: 203, user_id: "april_serra", completed: false },
 ];
 
 const sampleOrderProducts: StoredOrderProduct[] = [
@@ -46,6 +53,8 @@ const sampleOrderProducts: StoredOrderProduct[] = [
   { order_id: 202, product_id: 105, quantity: 2 },
   { order_id: 202, product_id: 103, quantity: 6 },
   { order_id: 202, product_id: 101, quantity: 6 },
+  { order_id: 203, product_id: 106, quantity: 2 },
+  { order_id: 203, product_id: 105, quantity: 2 },
 ];
 
 beforeEach(async (): Promise<void> => {

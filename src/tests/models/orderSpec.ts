@@ -4,6 +4,7 @@ import {
   OrderFieldsIncorrectError,
   ProductNotFoundError,
   UserNotFoundError,
+  UserOrdersNotFoundError,
 } from "../../errors";
 
 describe("OrderStore", (): void => {
@@ -78,6 +79,46 @@ describe("OrderStore", (): void => {
       const createResult: Result<Order> = await OrderStore.create(newOrder);
       expect(createResult.ok).toBe(false);
       expect(createResult.data).toBe(UserNotFoundError);
+    });
+  });
+
+  describe("getUserOrders method", (): void => {
+    it("should return a list of all orders for given user ID", async (): Promise<void> => {
+      const showUserOrdersResult: Result<Order[]> =
+        await OrderStore.showUserOrders("april_serra");
+
+      expect(showUserOrdersResult.ok).toBe(true);
+      const orders: Order[] = showUserOrdersResult.data as Order[];
+      expect(orders.length).toBeGreaterThan(1);
+
+      for (const order of orders) {
+        const { id, productIds, productQuantities, userId, isCompleted } =
+          order;
+        expect(typeof id).toBe("number");
+        expect(userId).toBe("april_serra");
+        expect(typeof isCompleted).toBe("boolean");
+
+        expect(productIds.length === productQuantities.length).toBe(true);
+        expect(productIds.length).toBeGreaterThan(1);
+        for (let i = 0; i < productIds.length; i++) {
+          expect(typeof productIds[i]).toBe("number");
+          expect(typeof productQuantities[i]).toBe("number");
+        }
+      }
+    });
+
+    it("should return error for non-existing user", async (): Promise<void> => {
+      const showUserOrdersResult: Result<Order[]> =
+        await OrderStore.showUserOrders("random_user");
+      expect(showUserOrdersResult.ok).toBe(false);
+      expect(showUserOrdersResult.data).toBe(UserNotFoundError);
+    });
+
+    it("should return error if user has no orders", async (): Promise<void> => {
+      const showUserOrdersResult: Result<Order[]> =
+        await OrderStore.showUserOrders("taysia_amylynn");
+      expect(showUserOrdersResult.ok).toBe(false);
+      expect(showUserOrdersResult.data).toBe(UserOrdersNotFoundError);
     });
   });
 });
