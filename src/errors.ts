@@ -35,3 +35,7 @@ export const OrderFieldsIncorrectError: Error = Error(
 export const UserOrdersNotFoundError: Error = Error(
   "User doesn't have any orders"
 );
+
+export const OrderProductFieldsIncorrectError: Error = Error(
+  "Order product has incorrect or empty fields"
+);
