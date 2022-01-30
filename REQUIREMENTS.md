@@ -15,8 +15,8 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 - Index: `/products` [GET]
 - Show: `/products/:product-id` [GET]
 - Create: `/products` [POST] [token required]
-- Top 5 most popular products: `/products?most-popular=true` [GET]
-- Products by category (args: product category): `/products?category=<category>` [GET]
+- Top 5 most popular products: `/popular-products` [GET]
+- Products by category (args: product category): `/category-products/:category` [GET]
 
 ### Users
 
@@ -27,7 +27,7 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 ### Orders
 
 - Current Orders by user (args: user id): `/users/:user-id/orders` [GET] [token required]
-- Completed Orders by user (args: user id): `/users/:user-id/orders?completed=true` [token required]
+- Completed Orders by user (args: user id): `/users/:user-id/completed-orders` [token required]
 
 ## Data Shapes
 
