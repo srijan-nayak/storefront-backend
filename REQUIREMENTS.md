@@ -81,10 +81,10 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 | user_id  (`foreign key`) | `varchar` |
 | completed                | `boolean` |
 
-### order-products
+### order_products
 
-| column                                        | type      |
-|-----------------------------------------------|-----------|
-| order_id (`compund key part` `foreign key`)   | `integer` |
-| product_id (`compund key part` `foregin key`) | `integer` |
-| quantity                                      | `integer` |
+| column                                         | type      |
+|------------------------------------------------|-----------|
+| order_id (`compound key part` `foreign key`)   | `integer` |
+| product_id (`compound key part` `foregin key`) | `integer` |
+| quantity                                       | `integer` |
