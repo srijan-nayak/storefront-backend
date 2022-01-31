@@ -1,5 +1,9 @@
 import { Result } from "../result";
-import { OrderFieldsIncorrectError, UserOrdersNotFoundError } from "../errors";
+import {
+  OrderFieldsIncorrectError,
+  OrderNotFoundError,
+  UserOrdersNotFoundError,
+} from "../errors";
 import UserStore, { User } from "./user";
 import { PoolClient, QueryResult } from "pg";
 import pgPool from "../database";
@@ -49,6 +53,20 @@ class OrderStore {
     const orders: Order[] = await OrderStore.getUserOrders(storedOrders);
 
     return { ok: true, data: orders };
+  }
+
+  static async show(orderId: number): Promise<Result<Order>> {
+    const queryResult: QueryResult<Order> = await pgPool.query(
+      `select *
+       from orders
+       where id = $1`,
+      [orderId]
+    );
+
+    const foundOrder: Order = queryResult.rows[0];
+    if (!foundOrder) return { ok: false, data: OrderNotFoundError };
+
+    return { ok: true, data: foundOrder };
   }
 
   private static async validateOrder(
