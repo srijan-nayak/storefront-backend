@@ -2,6 +2,7 @@ import OrderStore, { CompleteOrder, Order } from "../../models/order";
 import { Result } from "../../result";
 import {
   OrderFieldsIncorrectError,
+  OrderNotFoundError,
   ProductNotFoundError,
   UserNotFoundError,
   UserOrdersNotFoundError,
@@ -51,6 +52,23 @@ describe("OrderStore", (): void => {
       const createResult: Result<Order> = await OrderStore.create(newOrder);
       expect(createResult.ok).toBe(false);
       expect(createResult.data).toBe(UserNotFoundError);
+    });
+  });
+
+  describe("show method", (): void => {
+    it("should return details for existing order", async (): Promise<void> => {
+      const showResult: Result<Order> = await OrderStore.show(202);
+      expect(showResult.ok).toBe(true);
+      const order: Order = showResult.data as Order;
+      expect(order.id).toBe(202);
+      expect(order.user_id).toBe("antasia_marjory");
+      expect(order.completed).toBe(false);
+    });
+
+    it("should return error for non-existing order", async (): Promise<void> => {
+      const showResult: Result<Order> = await OrderStore.show(412);
+      expect(showResult.ok).toBe(false);
+      expect(showResult.data).toBe(OrderNotFoundError);
     });
   });
 
