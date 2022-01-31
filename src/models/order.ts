@@ -69,6 +69,22 @@ class OrderStore {
     return { ok: true, data: foundOrder };
   }
 
+  static async delete(orderId: number): Promise<Result<Order>> {
+    const showResult: Result<Order> = await OrderStore.show(orderId);
+    if (!showResult.ok) return showResult;
+
+    const queryResult: QueryResult<Order> = await pgPool.query(
+      `delete
+       from orders
+       where id = $1
+       returning *`,
+      [orderId]
+    );
+
+    const deletedOrder: Order = queryResult.rows[0];
+    return { ok: true, data: deletedOrder };
+  }
+
   private static async validateOrder(
     order: Order | unknown
   ): Promise<Result<Order>> {
