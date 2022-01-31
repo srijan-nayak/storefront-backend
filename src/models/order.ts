@@ -29,13 +29,13 @@ class OrderStore {
     const validOrder: Order = validateOrderResult.data;
     const { user_id, completed } = validOrder;
 
-    const insertOrderQueryResult: QueryResult<Order> = await pgPool.query(
+    const queryResult: QueryResult<Order> = await pgPool.query(
       `insert into orders (user_id, completed)
        values ($1, $2)
        returning *`,
       [user_id, completed]
     );
-    const createdOrder: Order = insertOrderQueryResult.rows[0];
+    const createdOrder: Order = queryResult.rows[0];
 
     return { ok: true, data: createdOrder };
   }

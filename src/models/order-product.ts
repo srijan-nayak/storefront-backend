@@ -21,15 +21,13 @@ class OrderProductStore {
     const validOrderProduct: OrderProduct = validateOrderProductResult.data;
     const { order_id, product_id, quantity } = validOrderProduct;
 
-    const insertOrderProductQueryResult: QueryResult<OrderProduct> =
-      await pgPool.query(
-        `insert into order_products
-         values ($1, $2, $3)
-         returning *`,
-        [order_id, product_id, quantity]
-      );
-    const createdOrderProduct: OrderProduct =
-      insertOrderProductQueryResult.rows[0];
+    const queryResult: QueryResult<OrderProduct> = await pgPool.query(
+      `insert into order_products
+       values ($1, $2, $3)
+       returning *`,
+      [order_id, product_id, quantity]
+    );
+    const createdOrderProduct: OrderProduct = queryResult.rows[0];
 
     return { ok: true, data: createdOrderProduct };
   }
