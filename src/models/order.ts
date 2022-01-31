@@ -1,11 +1,12 @@
 import { Result } from "../result";
 import {
+  CompleteOrderIncorrectFieldsError,
   OrderFieldsIncorrectError,
   OrderNotFoundError,
   UserOrdersNotFoundError,
 } from "../errors";
 import UserStore, { User } from "./user";
-import { PoolClient, QueryResult } from "pg";
+import { QueryResult } from "pg";
 import pgPool from "../database";
 import OrderProductStore, { OrderProduct } from "./order-product";
 
@@ -42,6 +43,43 @@ class OrderStore {
     const createdOrder: Order = queryResult.rows[0];
 
     return { ok: true, data: createdOrder };
+  }
+
+  static async createCompleteOrder(
+    completeOrder: CompleteOrder
+  ): Promise<Result<CompleteOrder>> {
+    if (!OrderStore.isCompleteOrder(completeOrder))
+      return { ok: false, data: CompleteOrderIncorrectFieldsError };
+
+    const { userId, isCompleted, productIds, productQuantities } =
+      completeOrder;
+
+    const order: Order = { user_id: userId, completed: isCompleted };
+    const orderCreateResult: Result<Order> = await OrderStore.create(order);
+    if (!orderCreateResult.ok) return orderCreateResult;
+    const createdOrder: Order = orderCreateResult.data;
+
+    const createdOrderProducts: OrderProduct[] = [];
+    for (let i = 0; i < productIds.length; i++) {
+      const orderProduct: OrderProduct = {
+        order_id: createdOrder.id as number,
+        product_id: productIds[i],
+        quantity: productQuantities[i],
+      };
+      const orderProductCreateResult: Result<OrderProduct> =
+        await OrderProductStore.create(orderProduct);
+      if (!orderProductCreateResult.ok) {
+        await OrderStore.delete(createdOrder.id as number);
+        return orderProductCreateResult;
+      }
+      const createdOrderProduct: OrderProduct = orderProductCreateResult.data;
+      createdOrderProducts.push(createdOrderProduct);
+    }
+
+    const createdCompletedOrder: CompleteOrder =
+      OrderStore.convertToCompleteOrder(createdOrder, createdOrderProducts);
+
+    return { ok: true, data: createdCompletedOrder };
   }
 
   static async showUserOrders(userId: string): Promise<Result<Order[]>> {
@@ -109,50 +147,39 @@ class OrderStore {
     return typeof completed === "boolean";
   }
 
-  private static async storeOrder(userId: string): Promise<StoredOrder> {
-    const insertOrderQueryResult: QueryResult<StoredOrder> = await pgPool.query(
-      `insert into orders (user_id, completed)
-       values ($1, false)
-       returning *`,
-      [userId]
-    );
-    const storedOrder: StoredOrder = insertOrderQueryResult.rows[0];
-    return storedOrder;
-  }
+  private static isCompleteOrder(object: unknown): object is CompleteOrder {
+    const id: unknown = (object as CompleteOrder).id;
+    const productIds: unknown = (object as CompleteOrder).productIds;
+    const productQuantities: unknown = (object as CompleteOrder)
+      .productQuantities;
+    const userId: unknown = (object as CompleteOrder).userId;
+    const isCompleted: unknown = (object as CompleteOrder).isCompleted;
 
-  private static async storeOrderProducts(
-    orderId: number,
-    productIds: number[],
-    productQuantities: number[]
-  ): Promise<StoredOrderProduct[]> {
-    const storedOrderProducts: StoredOrderProduct[] = [];
+    if (id !== undefined && typeof id !== "number") return false;
 
-    const client: PoolClient = await pgPool.connect();
+    if (!Array.isArray(productIds)) return false;
+    if (!Array.isArray(productQuantities)) return false;
+    if (productIds.length !== productQuantities.length) return false;
+    if (productIds.length < 1) return false;
     for (let i = 0; i < productIds.length; i++) {
-      const insertOrderProductQueryResult: QueryResult<StoredOrderProduct> =
-        await client.query(
-          `insert into order_products
-           values ($1, $2, $3)
-           returning *`,
-          [orderId, productIds[i], productQuantities[i]]
-        );
-      const storedOrderProduct = insertOrderProductQueryResult.rows[0];
-      storedOrderProducts.push(storedOrderProduct);
+      if (typeof productIds[i] !== "number") return false;
+      if (typeof productQuantities[i] !== "number" || productQuantities[i] < 1)
+        return false;
     }
-    client.release();
 
-    return storedOrderProducts;
+    if (typeof userId !== "string") return false;
+    return typeof isCompleted === "boolean";
   }
 
-  private static convertToOrder(
-    storedOrder: StoredOrder,
-    storedOrderProducts: StoredOrderProduct[]
-  ): Order {
-    const { id, user_id: userId, completed: isCompleted } = storedOrder;
+  private static convertToCompleteOrder(
+    order: Order,
+    orderProducts: OrderProduct[]
+  ): CompleteOrder {
+    const { id, user_id: userId, completed: isCompleted } = order;
 
     const productIds: number[] = [];
     const productQuantities: number[] = [];
-    for (const storedOrderProduct of storedOrderProducts) {
+    for (const storedOrderProduct of orderProducts) {
       productIds.push(storedOrderProduct.product_id);
       productQuantities.push(storedOrderProduct.quantity);
     }
