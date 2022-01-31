@@ -72,6 +72,28 @@ describe("OrderStore", (): void => {
     });
   });
 
+  describe("delete method", (): void => {
+    it("should delete existing order", async (): Promise<void> => {
+      const deleteResult: Result<Order> = await OrderStore.delete(202);
+      const showResult: Result<Order> = await OrderStore.show(202);
+
+      expect(deleteResult.ok).toBe(true);
+      const order: Order = deleteResult.data as Order;
+      expect(order.id).toBe(202);
+      expect(order.user_id).toBe("antasia_marjory");
+      expect(order.completed).toBe(false);
+
+      expect(showResult.ok).toBe(false);
+      expect(showResult.data).toBe(OrderNotFoundError);
+    });
+
+    it("should return error for non-existing order", async (): Promise<void> => {
+      const deleteResult: Result<Order> = await OrderStore.delete(412);
+      expect(deleteResult.ok).toBe(false);
+      expect(deleteResult.data).toBe(OrderNotFoundError);
+    });
+  });
+
   describe("createCompleteOrder method", (): void => {
     it("should return created order", async (): Promise<void> => {
       const newOrder: CompleteOrder = {
