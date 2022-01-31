@@ -28,6 +28,10 @@ export const ProductFieldsIncorrectError: Error = Error(
   "Product has incorrect or empty fields"
 );
 
+export const OrderNotFoundError: Error = Error(
+  "Order with the given ID doesn't exist"
+);
+
 export const OrderFieldsIncorrectError: Error = Error(
   "Order has incorrect or empty fields"
 );
