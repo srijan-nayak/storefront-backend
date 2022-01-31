@@ -4,7 +4,8 @@ import { User } from "../models/user";
 import { hash } from "bcrypt";
 import dotenv from "dotenv";
 import { Product } from "../models/product";
-import { StoredOrder, StoredOrderProduct } from "../models/order";
+import { Order } from "../models/order";
+import { OrderProduct } from "../models/order-product";
 
 dotenv.config();
 const env = process.env;
@@ -39,13 +40,13 @@ const sampleProducts: Product[] = [
   { id: 106, name: "Sleek Granite Salad", price: 15.14, category: "Food" },
 ];
 
-const sampleOrders: StoredOrder[] = [
+const sampleOrders: Order[] = [
   { id: 201, user_id: "april_serra", completed: false },
   { id: 202, user_id: "antasia_marjory", completed: false },
   { id: 203, user_id: "april_serra", completed: false },
 ];
 
-const sampleOrderProducts: StoredOrderProduct[] = [
+const sampleOrderProducts: OrderProduct[] = [
   { order_id: 201, product_id: 103, quantity: 8 },
   { order_id: 201, product_id: 102, quantity: 4 },
   { order_id: 201, product_id: 106, quantity: 1 },
@@ -105,6 +106,8 @@ beforeEach(async (): Promise<void> => {
 });
 
 afterEach(async (): Promise<void> => {
-  await pgPool.query("delete from users");
+  await pgPool.query("delete from order_products");
+  await pgPool.query("delete from orders");
   await pgPool.query("delete from products");
+  await pgPool.query("delete from users");
 });
