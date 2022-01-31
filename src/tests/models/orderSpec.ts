@@ -1,6 +1,7 @@
 import OrderStore, { CompleteOrder, Order } from "../../models/order";
 import { Result } from "../../result";
 import {
+  CompleteOrderIncorrectFieldsError,
   OrderFieldsIncorrectError,
   OrderNotFoundError,
   ProductNotFoundError,
@@ -95,43 +96,48 @@ describe("OrderStore", (): void => {
   });
 
   describe("createCompleteOrder method", (): void => {
-    it("should return created order", async (): Promise<void> => {
-      const newOrder: CompleteOrder = {
+    it("should return created complete order", async (): Promise<void> => {
+      const newCompletedOrder: CompleteOrder = {
         productIds: [103, 105],
         productQuantities: [4, 2],
         userId: "april_serra",
+        isCompleted: false,
       };
       const createResult: Result<CompleteOrder> =
-        await OrderStore.createCompleteOrder(newOrder);
+        await OrderStore.createCompleteOrder(newCompletedOrder);
       expect(createResult.ok).toBe(true);
       const order: CompleteOrder = createResult.data as CompleteOrder;
       expect(typeof order.id).toBe("number");
-      expect(order.productIds).toEqual(newOrder.productIds);
-      expect(order.productQuantities).toEqual(newOrder.productQuantities);
+      expect(order.productIds).toEqual(newCompletedOrder.productIds);
+      expect(order.productQuantities).toEqual(
+        newCompletedOrder.productQuantities
+      );
       expect(order.userId).toBe("april_serra");
       expect(order.isCompleted).toBe(false);
     });
 
-    it("should return error invalid order data", async (): Promise<void> => {
+    it("should return error for invalid order data", async (): Promise<void> => {
       const invalidOrder1: unknown = {
         productIds: 101,
         productQuantities: 4,
         userId: "antasia_marjory",
+        isCompleted: false,
       };
       const createResult1: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(invalidOrder1 as CompleteOrder);
       expect(createResult1.ok).toBe(false);
-      expect(createResult1.data).toBe(OrderFieldsIncorrectError);
+      expect(createResult1.data).toBe(CompleteOrderIncorrectFieldsError);
 
       const invalidOrder2: unknown = {
         productIds: [102, 105],
         productQuantities: [2, -1],
         userId: "antasia_marjory",
+        isCompleted: false,
       };
       const createResult2: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(invalidOrder2 as CompleteOrder);
       expect(createResult2.ok).toBe(false);
-      expect(createResult2.data).toBe(OrderFieldsIncorrectError);
+      expect(createResult2.data).toBe(CompleteOrderIncorrectFieldsError);
 
       const invalidOrder3: unknown = {
         productIds: [102, 105],
@@ -140,7 +146,7 @@ describe("OrderStore", (): void => {
       const createResult3: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(invalidOrder3 as CompleteOrder);
       expect(createResult3.ok).toBe(false);
-      expect(createResult3.data).toBe(OrderFieldsIncorrectError);
+      expect(createResult3.data).toBe(CompleteOrderIncorrectFieldsError);
     });
 
     it("should return error for non-existing products", async (): Promise<void> => {
@@ -148,6 +154,7 @@ describe("OrderStore", (): void => {
         productIds: [103, 185],
         productQuantities: [4, 2],
         userId: "april_serra",
+        isCompleted: true,
       };
       const createResult: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(newOrder);
@@ -160,6 +167,7 @@ describe("OrderStore", (): void => {
         productIds: [103, 105],
         productQuantities: [4, 2],
         userId: "random_user",
+        isCompleted: false,
       };
       const createResult: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(newOrder);
