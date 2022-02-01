@@ -34,26 +34,27 @@ type StoredUser = {
 class UserStore {
   static async index(): Promise<User[]> {
     const queryResult: QueryResult<StoredUser> = await pgPool.query(
-      "select * from users"
+      `select *
+       from users`
     );
-    const convertedUsers: User[] = queryResult.rows.map(
-      UserStore.storedUserToUser
-    );
+
+    const storedUsers = queryResult.rows;
+    const convertedUsers: User[] = storedUsers.map(UserStore.convertToUser);
     return convertedUsers;
   }
 
   static async show(userId: string): Promise<Result<User>> {
     const queryResult: QueryResult<StoredUser> = await pgPool.query(
-      "select * from users where id = $1",
+      `select *
+       from users
+       where id = $1`,
       [userId]
     );
 
     const foundUser: StoredUser | undefined = queryResult.rows[0];
-    if (!foundUser) {
-      return { ok: false, data: UserNotFoundError };
-    }
+    if (!foundUser) return { ok: false, data: UserNotFoundError };
 
-    const convertedUser: User = UserStore.storedUserToUser(foundUser);
+    const convertedUser: User = UserStore.convertToUser(foundUser);
     return { ok: true, data: convertedUser };
   }
 
@@ -75,7 +76,7 @@ class UserStore {
       [id, firstName, lastName, passwordDigest]
     );
 
-    const createdUser: User = UserStore.storedUserToUser(queryResult.rows[0]);
+    const createdUser: User = UserStore.convertToUser(queryResult.rows[0]);
     return { ok: true, data: createdUser };
   }
 
@@ -84,24 +85,15 @@ class UserStore {
     password: PasswordPlainText
   ): Promise<Result<string>> {
     const showResult: Result<User> = await this.show(userId);
-    if (!showResult.ok) {
-      return {
-        ok: false,
-        data: showResult.data,
-      };
-    }
+    if (!showResult.ok) return showResult;
 
     const foundUser: User = showResult.data;
     const isPasswordCorrect: boolean = await compare(
       password + env["PEPPER"],
       foundUser.password
     );
-    if (!isPasswordCorrect) {
-      return {
-        ok: false,
-        data: UserPasswordIncorrectError,
-      };
-    }
+    if (!isPasswordCorrect)
+      return { ok: false, data: UserPasswordIncorrectError };
 
     const jwt: string = sign(foundUser, env["JWT_SECRET"] as string);
     return { ok: true, data: jwt };
@@ -112,8 +104,10 @@ class UserStore {
   ): Promise<Result<User>> {
     if (!UserStore.isUser(user))
       return { ok: false, data: UserFieldsIncorrectError };
+
     const showResult: Result<User> = await UserStore.show(user.id);
     if (showResult.ok) return { ok: false, data: UserAlreadyExistsError };
+
     return { ok: true, data: user };
   }
 
@@ -129,7 +123,7 @@ class UserStore {
     return !(typeof password !== "string" || password === "");
   }
 
-  private static storedUserToUser(storedUser: StoredUser): User {
+  private static convertToUser(storedUser: StoredUser): User {
     return {
       id: storedUser.id,
       firstName: storedUser.first_name,
