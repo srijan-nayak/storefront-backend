@@ -37,12 +37,8 @@ class ProductStore {
   }
 
   static async create(product: Product): Promise<Result<Product>> {
-    if (!ProductStore.isValidProduct(product)) {
-      return {
-        ok: false,
-        data: ProductFieldsIncorrectError,
-      };
-    }
+    if (!ProductStore.isProduct(product))
+      return { ok: false, data: ProductFieldsIncorrectError };
 
     const { name, price, category } = product;
     const queryResult: QueryResult<Product> = await pgPool.query(
@@ -52,19 +48,20 @@ class ProductStore {
       [name, price, category]
     );
 
-    const createdProduct = queryResult.rows[0];
+    const createdProduct: Product = queryResult.rows[0];
     return { ok: true, data: createdProduct };
   }
 
-  private static isValidProduct(object: unknown): boolean {
-    return (
-      (object as Product).name !== undefined &&
-      (object as Product).name !== "" &&
-      (object as Product).price !== undefined &&
-      (object as Product).price > 0 &&
-      (object as Product).category !== undefined &&
-      (object as Product).category !== ""
-    );
+  private static isProduct(object: unknown): object is Product {
+    const id: unknown = (object as Product).id;
+    const name: unknown = (object as Product).name;
+    const price: unknown = (object as Product).price;
+    const category: unknown = (object as Product).category;
+
+    if (id !== undefined && typeof id !== "number") return false;
+    if (typeof name !== "string" || name === "") return false;
+    if (typeof price !== "number" || price < 1) return false;
+    return !(typeof category !== "string" || category === "");
   }
 }
 
