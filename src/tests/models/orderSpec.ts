@@ -162,7 +162,7 @@ describe("OrderStore", (): void => {
       expect(createResult.data).toBe(ProductNotFoundError);
     });
 
-    it("it should return error for non-existing user", async (): Promise<void> => {
+    it("should return error for non-existing user", async (): Promise<void> => {
       const newOrder: CompleteOrder = {
         productIds: [103, 105],
         productQuantities: [4, 2],
@@ -176,24 +176,23 @@ describe("OrderStore", (): void => {
     });
   });
 
-  describe("getUserOrders method", (): void => {
-    it("should return a list of all orders for given user ID", async (): Promise<void> => {
-      const showUserOrdersResult: Result<CompleteOrder[]> =
-        await OrderStore.showUserOrders("april_serra");
+  describe("showUserCompleteOrders method", (): void => {
+    it("should return complete orders", async (): Promise<void> => {
+      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
+        await OrderStore.showUserCompleteOrders("april_serra");
+      expect(showUserCompleteOrdersResult.ok).toBe(true);
 
-      expect(showUserOrdersResult.ok).toBe(true);
-      const orders: CompleteOrder[] =
-        showUserOrdersResult.data as CompleteOrder[];
-      expect(orders.length).toBeGreaterThan(1);
-
-      for (const order of orders) {
+      const completeOrders: CompleteOrder[] =
+        showUserCompleteOrdersResult.data as CompleteOrder[];
+      expect(completeOrders.length).toBeGreaterThan(1);
+      for (const completeOrder of completeOrders) {
         const { id, productIds, productQuantities, userId, isCompleted } =
-          order;
+          completeOrder;
         expect(typeof id).toBe("number");
-        expect(userId).toBe("april_serra");
+        expect(typeof userId).toBe("string");
         expect(typeof isCompleted).toBe("boolean");
 
-        expect(productIds.length === productQuantities.length).toBe(true);
+        expect(productIds.length).toBe(productQuantities.length);
         expect(productIds.length).toBeGreaterThan(1);
         for (let i = 0; i < productIds.length; i++) {
           expect(typeof productIds[i]).toBe("number");
@@ -203,17 +202,17 @@ describe("OrderStore", (): void => {
     });
 
     it("should return error for non-existing user", async (): Promise<void> => {
-      const showUserOrdersResult: Result<CompleteOrder[]> =
-        await OrderStore.showUserOrders("random_user");
-      expect(showUserOrdersResult.ok).toBe(false);
-      expect(showUserOrdersResult.data).toBe(UserNotFoundError);
+      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
+        await OrderStore.showUserCompleteOrders("random_user");
+      expect(showUserCompleteOrdersResult.ok).toBe(false);
+      expect(showUserCompleteOrdersResult.data).toBe(UserNotFoundError);
     });
 
-    it("should return error if user has no orders", async (): Promise<void> => {
-      const showUserOrdersResult: Result<CompleteOrder[]> =
-        await OrderStore.showUserOrders("taysia_amylynn");
-      expect(showUserOrdersResult.ok).toBe(false);
-      expect(showUserOrdersResult.data).toBe(UserOrdersNotFoundError);
+    it("should return error for user not having any orders", async (): Promise<void> => {
+      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
+        await OrderStore.showUserCompleteOrders("taysia_amylynn");
+      expect(showUserCompleteOrdersResult.ok).toBe(false);
+      expect(showUserCompleteOrdersResult.data).toBe(UserOrdersNotFoundError);
     });
   });
 });
