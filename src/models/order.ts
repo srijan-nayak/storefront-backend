@@ -58,7 +58,6 @@ class OrderStore {
 
     const createdCompletedOrder: CompleteOrder =
       OrderStore.convertToCompleteOrder(createdOrder, createdOrderProducts);
-
     return { ok: true, data: createdCompletedOrder };
   }
 
@@ -122,7 +121,7 @@ class OrderStore {
       [orderId]
     );
 
-    const foundOrder: Order = queryResult.rows[0];
+    const foundOrder: Order | undefined = queryResult.rows[0];
     if (!foundOrder) return { ok: false, data: OrderNotFoundError };
 
     return { ok: true, data: foundOrder };
@@ -151,8 +150,7 @@ class OrderStore {
       return { ok: false, data: OrderFieldsIncorrectError };
     }
 
-    const userId: string = order.user_id;
-    const userShowResult: Result<User> = await UserStore.show(userId);
+    const userShowResult: Result<User> = await UserStore.show(order.user_id);
     if (!userShowResult.ok) return userShowResult;
 
     return { ok: true, data: order };
@@ -164,8 +162,8 @@ class OrderStore {
     const completed: unknown = (object as Order).completed;
 
     if (id !== undefined && typeof id !== "number") return false;
-    if (typeof user_id !== "string") return false;
-    return typeof completed === "boolean";
+    if (typeof user_id !== "string" || user_id === "") return false;
+    return !(typeof completed !== "boolean");
   }
 
   private static isCompleteOrder(object: unknown): object is CompleteOrder {
@@ -188,8 +186,8 @@ class OrderStore {
         return false;
     }
 
-    if (typeof userId !== "string") return false;
-    return typeof isCompleted === "boolean";
+    if (typeof userId !== "string" || userId === "") return false;
+    return !(typeof isCompleted !== "boolean");
   }
 
   private static convertToCompleteOrder(
@@ -200,18 +198,12 @@ class OrderStore {
 
     const productIds: number[] = [];
     const productQuantities: number[] = [];
-    for (const storedOrderProduct of orderProducts) {
-      productIds.push(storedOrderProduct.product_id);
-      productQuantities.push(storedOrderProduct.quantity);
+    for (const { product_id, quantity } of orderProducts) {
+      productIds.push(product_id);
+      productQuantities.push(quantity);
     }
 
-    return {
-      id,
-      productIds,
-      productQuantities,
-      userId,
-      isCompleted,
-    };
+    return { id, productIds, productQuantities, userId, isCompleted };
   }
 }
 
