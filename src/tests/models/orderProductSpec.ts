@@ -1,6 +1,7 @@
 import OrderProductStore, { OrderProduct } from "../../models/order-product";
 import { Result } from "../../result";
 import {
+  OrderNotFoundError,
   OrderProductFieldsIncorrectError,
   ProductNotFoundError,
 } from "../../errors";
@@ -55,6 +56,30 @@ describe("OrderProductStore", (): void => {
       );
       expect(createResult.ok).toBe(false);
       expect(createResult.data).toBe(ProductNotFoundError);
+    });
+  });
+
+  describe("show method", (): void => {
+    it("should return list of order products for existing order", async (): Promise<void> => {
+      const showResult: Result<OrderProduct[]> = await OrderProductStore.show(
+        203
+      );
+      expect(showResult.ok).toBe(true);
+      const orderProducts: OrderProduct[] = showResult.data as OrderProduct[];
+      expect(orderProducts.length).toBeGreaterThan(1);
+      for (const orderProduct of orderProducts) {
+        expect(typeof orderProduct.order_id).toBe("number");
+        expect(typeof orderProduct.product_id).toBe("number");
+        expect(typeof orderProduct.quantity).toBe("number");
+      }
+    });
+
+    it("should return error for non-existing order", async (): Promise<void> => {
+      const showResult: Result<OrderProduct[]> = await OrderProductStore.show(
+        621
+      );
+      expect(showResult.ok).toBe(false);
+      expect(showResult.data).toBe(OrderNotFoundError);
     });
   });
 });
