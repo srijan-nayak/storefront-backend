@@ -28,8 +28,8 @@ class OrderProductStore {
        returning *`,
       [order_id, product_id, quantity]
     );
-    const createdOrderProduct: OrderProduct = queryResult.rows[0];
 
+    const createdOrderProduct: OrderProduct = queryResult.rows[0];
     return { ok: true, data: createdOrderProduct };
   }
 
@@ -55,11 +55,9 @@ class OrderProductStore {
       return { ok: false, data: OrderProductFieldsIncorrectError };
     }
 
-    const product_id: number = orderProduct.product_id;
     const productShowResult: Result<Product> = await ProductStore.show(
-      product_id
+      orderProduct.product_id
     );
-
     if (!productShowResult.ok) return productShowResult;
 
     return { ok: true, data: orderProduct };
