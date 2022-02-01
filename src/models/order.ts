@@ -82,15 +82,36 @@ class OrderStore {
     return { ok: true, data: createdCompletedOrder };
   }
 
-  static async showUserOrders(userId: string): Promise<Result<Order[]>> {
-    const userStoredOrdersGetResult: Result<StoredOrder[]> =
-      await OrderStore.getUserStoredOrders(userId);
-    if (!userStoredOrdersGetResult.ok) return userStoredOrdersGetResult;
-    const storedOrders: StoredOrder[] = userStoredOrdersGetResult.data;
+  static async showUserCompleteOrders(
+    userId: string
+  ): Promise<Result<CompleteOrder[]>> {
+    const userShowResult: Result<User> = await UserStore.show(userId);
+    if (!userShowResult.ok) return userShowResult;
 
-    const orders: Order[] = await OrderStore.getUserOrders(storedOrders);
+    const userOrdersQueryResult: QueryResult<Order> = await pgPool.query(
+      `select *
+       from orders
+       where user_id = $1`,
+      [userId]
+    );
+    const userOrders: Order[] = userOrdersQueryResult.rows;
+    if (userOrders.length === 0)
+      return { ok: false, data: UserOrdersNotFoundError };
 
-    return { ok: true, data: orders };
+    const userCompleteOrders: CompleteOrder[] = [];
+    for (const order of userOrders) {
+      const orderProductsShowResult: Result<OrderProduct[]> =
+        await OrderProductStore.show(order.id as number);
+      if (!orderProductsShowResult.ok) return orderProductsShowResult;
+      const orderProducts: OrderProduct[] = orderProductsShowResult.data;
+      const completeOrder: CompleteOrder = OrderStore.convertToCompleteOrder(
+        order,
+        orderProducts
+      );
+      userCompleteOrders.push(completeOrder);
+    }
+
+    return { ok: true, data: userCompleteOrders };
   }
 
   static async show(orderId: number): Promise<Result<Order>> {
@@ -191,51 +212,6 @@ class OrderStore {
       userId,
       isCompleted,
     };
-  }
-
-  private static async getUserStoredOrders(
-    userId: string
-  ): Promise<Result<StoredOrder[]>> {
-    const showUserResult: Result<User> = await UserStore.show(userId);
-    if (!showUserResult.ok) return showUserResult;
-
-    const selectOrdersQueryResult: QueryResult<StoredOrder> =
-      await pgPool.query(
-        `select *
-         from orders
-         where user_id = $1`,
-        [userId]
-      );
-    if (selectOrdersQueryResult.rows.length === 0) {
-      return { ok: false, data: UserOrdersNotFoundError };
-    }
-
-    const storedOrders: StoredOrder[] = selectOrdersQueryResult.rows;
-    return { ok: true, data: storedOrders };
-  }
-
-  private static async getUserOrders(storedOrders: StoredOrder[]) {
-    const orders: Order[] = [];
-
-    for (const storedOrder of storedOrders) {
-      const selectOrderProductsQueryResult: QueryResult<StoredOrderProduct> =
-        await pgPool.query(
-          `select *
-           from order_products
-           where order_id = $1`,
-          [storedOrder.id]
-        );
-      const storedOrderProducts: StoredOrderProduct[] =
-        selectOrderProductsQueryResult.rows;
-
-      const order: Order = OrderStore.convertToOrder(
-        storedOrder,
-        storedOrderProducts
-      );
-      orders.push(order);
-    }
-
-    return orders;
   }
 }
 
