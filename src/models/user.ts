@@ -58,21 +58,11 @@ class UserStore {
   }
 
   static async create(user: User): Promise<Result<User>> {
-    if (!UserStore.isValidUser(user)) {
-      return {
-        ok: false,
-        data: UserFieldsIncorrectError,
-      };
-    }
+    const validateUserResult: Result<User> = await UserStore.validateUser(user);
+    if (!validateUserResult.ok) return validateUserResult;
 
-    const { id, firstName, lastName, password: plaintextPassword } = user;
-    const showResult: Result<User> = await UserStore.show(id);
-    if (showResult.ok) {
-      return {
-        ok: false,
-        data: UserAlreadyExistsError,
-      };
-    }
+    const validUser: User = validateUserResult.data;
+    const { id, firstName, lastName, password: plaintextPassword } = validUser;
 
     const passwordDigest: string = await hash(
       plaintextPassword + env["PEPPER"],
@@ -117,6 +107,28 @@ class UserStore {
     return { ok: true, data: jwt };
   }
 
+  private static async validateUser(
+    user: User | unknown
+  ): Promise<Result<User>> {
+    if (!UserStore.isUser(user))
+      return { ok: false, data: UserFieldsIncorrectError };
+    const showResult: Result<User> = await UserStore.show(user.id);
+    if (showResult.ok) return { ok: false, data: UserAlreadyExistsError };
+    return { ok: true, data: user };
+  }
+
+  private static isUser(object: unknown): object is User {
+    const id: unknown = (object as User).id;
+    const firstName: unknown = (object as User).firstName;
+    const lastName: unknown = (object as User).lastName;
+    const password: unknown = (object as User).password;
+
+    if (typeof id !== "string" || id === "") return false;
+    if (typeof firstName !== "string" || firstName === "") return false;
+    if (typeof lastName !== "string" || lastName === "") return false;
+    return !(typeof password !== "string" || password === "");
+  }
+
   private static storedUserToUser(storedUser: StoredUser): User {
     return {
       id: storedUser.id,
@@ -124,19 +136,6 @@ class UserStore {
       lastName: storedUser.last_name,
       password: storedUser.password_digest,
     };
-  }
-
-  private static isValidUser(object: unknown): boolean {
-    return (
-      (object as User).id !== undefined &&
-      (object as User).id !== "" &&
-      (object as User).firstName !== undefined &&
-      (object as User).firstName !== "" &&
-      (object as User).lastName !== undefined &&
-      (object as User).lastName !== "" &&
-      (object as User).password !== undefined &&
-      (object as User).password !== ""
-    );
   }
 }
 
