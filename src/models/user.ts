@@ -38,7 +38,7 @@ class UserStore {
        from users`
     );
 
-    const storedUsers = queryResult.rows;
+    const storedUsers: StoredUser[] = queryResult.rows;
     const convertedUsers: User[] = storedUsers.map(UserStore.convertToUser);
     return convertedUsers;
   }
