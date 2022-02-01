@@ -16,6 +16,7 @@ class ProductStore {
       `select id, name, price::numeric::double precision, category
        from products`
     );
+
     const products: Product[] = queryResult.rows;
     return products;
   }
@@ -28,10 +29,8 @@ class ProductStore {
       [productId]
     );
 
-    const foundProduct = queryResult.rows[0];
-    if (!foundProduct) {
-      return { ok: false, data: ProductNotFoundError };
-    }
+    const foundProduct: Product | undefined = queryResult.rows[0];
+    if (!foundProduct) return { ok: false, data: ProductNotFoundError };
 
     return { ok: true, data: foundProduct };
   }
