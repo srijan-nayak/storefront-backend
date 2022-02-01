@@ -25,26 +25,6 @@ export type Order = {
 };
 
 class OrderStore {
-  static async create(order: Order): Promise<Result<Order>> {
-    const validateOrderResult: Result<Order> = await OrderStore.validateOrder(
-      order
-    );
-    if (!validateOrderResult.ok) return validateOrderResult;
-
-    const validOrder: Order = validateOrderResult.data;
-    const { user_id, completed } = validOrder;
-
-    const queryResult: QueryResult<Order> = await pgPool.query(
-      `insert into orders (user_id, completed)
-       values ($1, $2)
-       returning *`,
-      [user_id, completed]
-    );
-    const createdOrder: Order = queryResult.rows[0];
-
-    return { ok: true, data: createdOrder };
-  }
-
   static async createCompleteOrder(
     completeOrder: CompleteOrder
   ): Promise<Result<CompleteOrder>> {
@@ -112,6 +92,26 @@ class OrderStore {
     }
 
     return { ok: true, data: userCompleteOrders };
+  }
+
+  static async create(order: Order): Promise<Result<Order>> {
+    const validateOrderResult: Result<Order> = await OrderStore.validateOrder(
+      order
+    );
+    if (!validateOrderResult.ok) return validateOrderResult;
+
+    const validOrder: Order = validateOrderResult.data;
+    const { user_id, completed } = validOrder;
+
+    const queryResult: QueryResult<Order> = await pgPool.query(
+      `insert into orders (user_id, completed)
+       values ($1, $2)
+       returning *`,
+      [user_id, completed]
+    );
+    const createdOrder: Order = queryResult.rows[0];
+
+    return { ok: true, data: createdOrder };
   }
 
   static async show(orderId: number): Promise<Result<Order>> {
