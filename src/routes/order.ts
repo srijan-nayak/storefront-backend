@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import { checkAuthorization } from "../middleware";
 import { Result } from "../result";
 import OrderStore, { CompleteOrder } from "../models/order";
+import { httpStatus } from "../errors";
 
 const orderHandler: Router = Router();
 
@@ -15,7 +16,7 @@ orderHandler.get(
         await OrderStore.showCompleteOrder(orderId);
       if (!showCompleteOrderResult.ok) {
         const error: Error = showCompleteOrderResult.data;
-        res.status(404).json(error.toString());
+        res.status(httpStatus(error)).json(error.toString());
         return;
       }
       const completeOrder: CompleteOrder = showCompleteOrderResult.data;

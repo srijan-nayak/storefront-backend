@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
 import dotenv from "dotenv";
-import { AuthorizationError, DBError } from "./errors";
+import { AuthorizationError, DBError, httpStatus } from "./errors";
 
 dotenv.config();
 const env = process.env;
@@ -13,7 +13,8 @@ export const dbErrorHandler = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
 ): void => {
-  res.status(500).json(DBError.toString());
+  const error: Error = DBError;
+  res.status(httpStatus(error)).json(error.toString());
 };
 
 export const checkAuthorization = async (
@@ -27,7 +28,7 @@ export const checkAuthorization = async (
     verify(token, env["JWT_SECRET"] as string);
     next();
   } catch (error) {
-    res.status(401);
-    res.json(AuthorizationError.toString());
+    const authError: Error = AuthorizationError;
+    res.status(httpStatus(authError)).json(authError.toString());
   }
 };

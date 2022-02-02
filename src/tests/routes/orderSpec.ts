@@ -2,13 +2,17 @@ import request, { Response } from "supertest";
 import app from "../../index";
 import { validToken } from "./userSpec";
 import { CompleteOrder } from "../../models/order";
-import { AuthorizationError, OrderNotFoundError } from "../../errors";
+import {
+  AuthorizationError,
+  httpStatus,
+  OrderNotFoundError,
+} from "../../errors";
 
 describe("Order handler endpoint", (): void => {
   describe("GET /order/:id", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
       const response: Response = await request(app).get("/order/202");
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
     });
 
@@ -36,7 +40,7 @@ describe("Order handler endpoint", (): void => {
       const response: Response = await request(app)
         .get("/order/644")
         .auth(validToken, { type: "bearer" });
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(httpStatus(OrderNotFoundError));
       expect(response.body).toBe(OrderNotFoundError.toString());
     });
   });

@@ -3,6 +3,7 @@ import app from "../../index";
 import { Product } from "../../models/product";
 import {
   AuthorizationError,
+  httpStatus,
   ProductFieldsIncorrectError,
   ProductNotFoundError,
 } from "../../errors";
@@ -37,7 +38,7 @@ describe("Product handler endpoint", (): void => {
 
     it("should return error for non-existing product", async (): Promise<void> => {
       const response: Response = await request(app).get("/product/182");
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(httpStatus(ProductNotFoundError));
       expect(response.body).toBe(ProductNotFoundError.toString());
     });
   });
@@ -52,7 +53,7 @@ describe("Product handler endpoint", (): void => {
       const response: Response = await request(app)
         .post("/product")
         .send(newProduct);
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
     });
 
@@ -83,7 +84,7 @@ describe("Product handler endpoint", (): void => {
         .post("/product")
         .send(invalidProduct1)
         .auth(validToken, { type: "bearer" });
-      expect(response1.status).toBe(422);
+      expect(response1.status).toBe(httpStatus(ProductFieldsIncorrectError));
       expect(response1.body).toBe(ProductFieldsIncorrectError.toString());
 
       const invalidProduct2: Product = {
@@ -95,7 +96,7 @@ describe("Product handler endpoint", (): void => {
         .post("/product")
         .send(invalidProduct2)
         .auth(validToken, { type: "bearer" });
-      expect(response2.status).toBe(422);
+      expect(response2.status).toBe(httpStatus(ProductFieldsIncorrectError));
       expect(response2.body).toBe(ProductFieldsIncorrectError.toString());
     });
   });

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import UserStore, { User } from "../models/user";
 import { Result } from "../result";
 import { checkAuthorization } from "../middleware";
-import { UserAlreadyExistsError, UserNotFoundError } from "../errors";
+import { httpStatus } from "../errors";
 
 const userHandler: Router = Router();
 
@@ -28,7 +28,7 @@ userHandler.get(
       const showResult: Result<User> = await UserStore.show(userId);
       if (!showResult.ok) {
         const error: Error = showResult.data;
-        res.status(404).json(error.toString());
+        res.status(httpStatus(error)).json(error.toString());
         return;
       }
       const user: User = showResult.data;
@@ -43,15 +43,11 @@ userHandler.post(
   "/",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const newUser: User = req.body as User;
+      const newUser: User = req.body;
       const createResult: Result<User> = await UserStore.create(newUser);
       if (!createResult.ok) {
         const error: Error = createResult.data;
-        if (error === UserAlreadyExistsError) {
-          res.status(409).json(error.toString());
-        } else {
-          res.status(422).json(error.toString());
-        }
+        res.status(httpStatus(error)).json(error.toString());
         return;
       }
       const createdUser: User = createResult.data;
@@ -74,12 +70,7 @@ userHandler.post(
       );
       if (!authenticateResult.ok) {
         const error: Error = authenticateResult.data;
-        if (error === UserNotFoundError) {
-          res.status(404);
-        } else {
-          res.status(401);
-        }
-        res.json(error.toString());
+        res.status(httpStatus(error)).json(error.toString());
         return;
       }
       const jwt: string = authenticateResult.data;

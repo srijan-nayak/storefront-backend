@@ -3,6 +3,7 @@ import app from "../../index";
 import { User } from "../../models/user";
 import {
   AuthorizationError,
+  httpStatus,
   UserAlreadyExistsError,
   UserFieldsIncorrectError,
   UserNotFoundError,
@@ -20,7 +21,7 @@ describe("User handler endpoint", (): void => {
   describe("GET /user", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
       const response: Response = await request(app).get("/user");
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
     });
 
@@ -45,7 +46,7 @@ describe("User handler endpoint", (): void => {
       const response: Response = await request(app).get(
         "/user/antasia_marjory"
       );
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
     });
 
@@ -65,7 +66,7 @@ describe("User handler endpoint", (): void => {
       const response: Response = await request(app)
         .get("/user/some_user")
         .auth(validToken, { type: "bearer" });
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(httpStatus(UserNotFoundError));
       expect(response.body).toBe(UserNotFoundError.toString());
     });
   });
@@ -97,7 +98,7 @@ describe("User handler endpoint", (): void => {
       const response: Response = await request(app)
         .post("/user")
         .send(duplicateUser);
-      expect(response.status).toBe(409);
+      expect(response.status).toBe(httpStatus(UserAlreadyExistsError));
       expect(response.body).toBe(UserAlreadyExistsError.toString());
     });
 
@@ -110,7 +111,7 @@ describe("User handler endpoint", (): void => {
       const response1: Response = await request(app)
         .post("/user")
         .send(invalidUser1);
-      expect(response1.status).toBe(422);
+      expect(response1.status).toBe(httpStatus(UserFieldsIncorrectError));
       expect(response1.body).toBe(UserFieldsIncorrectError.toString());
 
       const invalidUser2: User = {
@@ -122,7 +123,7 @@ describe("User handler endpoint", (): void => {
       const response2: Response = await request(app)
         .post("/user")
         .send(invalidUser2);
-      expect(response2.status).toBe(422);
+      expect(response2.status).toBe(httpStatus(UserFieldsIncorrectError));
       expect(response2.body).toBe(UserFieldsIncorrectError.toString());
     });
   });
@@ -141,13 +142,13 @@ describe("User handler endpoint", (): void => {
       const response1: Response = await request(app)
         .post("/user/authenticate")
         .send({ id: "non_existing_user", password: "randompassword" });
-      expect(response1.status).toBe(404);
+      expect(response1.status).toBe(httpStatus(UserNotFoundError));
       expect(response1.body).toBe(UserNotFoundError.toString());
 
       const response2: Response = await request(app)
         .post("/user/authenticate")
         .send({ id: "april_serra", password: "wrondpassword" });
-      expect(response2.status).toBe(401);
+      expect(response2.status).toBe(httpStatus(UserPasswordIncorrectError));
       expect(response2.body).toBe(UserPasswordIncorrectError.toString());
     });
   });

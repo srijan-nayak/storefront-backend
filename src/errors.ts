@@ -47,3 +47,27 @@ export const UserOrdersNotFoundError: Error = Error(
 export const OrderProductFieldsIncorrectError: Error = Error(
   "Order product has incorrect or empty fields"
 );
+
+export const httpStatus = (error: Error): number => {
+  switch (error) {
+    case AuthorizationError:
+    case UserPasswordIncorrectError:
+      return 401;
+    case UserNotFoundError:
+    case ProductNotFoundError:
+    case OrderNotFoundError:
+    case UserOrdersNotFoundError:
+      return 404;
+    case UserAlreadyExistsError:
+      return 409;
+    case UserFieldsIncorrectError:
+    case ProductFieldsIncorrectError:
+    case OrderFieldsIncorrectError:
+    case OrderProductFieldsIncorrectError:
+    case CompleteOrderIncorrectFieldsError:
+      return 422;
+    case DBError:
+    default:
+      return 500;
+  }
+};

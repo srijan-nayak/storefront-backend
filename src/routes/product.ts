@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import ProductStore, { Product } from "../models/product";
 import { Result } from "../result";
 import { checkAuthorization } from "../middleware";
+import { httpStatus } from "../errors";
 
 const productHandler: Router = Router();
 
@@ -25,7 +26,7 @@ productHandler.get(
       const showResult: Result<Product> = await ProductStore.show(productId);
       if (!showResult.ok) {
         const error: Error = showResult.data;
-        res.status(404).json(error.toString());
+        res.status(httpStatus(error)).json(error.toString());
         return;
       }
       const product: Product = showResult.data;
@@ -41,13 +42,13 @@ productHandler.post(
   checkAuthorization,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const newProduct: Product = req.body as Product;
+      const newProduct: Product = req.body;
       const createResult: Result<Product> = await ProductStore.create(
         newProduct
       );
       if (!createResult.ok) {
         const error: Error = createResult.data;
-        res.status(422).json(error.toString());
+        res.status(httpStatus(error)).json(error.toString());
         return;
       }
       const createdProduct: Product = createResult.data;
