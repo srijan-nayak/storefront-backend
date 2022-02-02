@@ -97,22 +97,22 @@ describe("OrderStore", (): void => {
 
   describe("createCompleteOrder method", (): void => {
     it("should return created complete order", async (): Promise<void> => {
-      const newCompletedOrder: CompleteOrder = {
+      const newCompleteOrder: CompleteOrder = {
         productIds: [103, 105],
         productQuantities: [4, 2],
         userId: "april_serra",
         isCompleted: false,
       };
       const createResult: Result<CompleteOrder> =
-        await OrderStore.createCompleteOrder(newCompletedOrder);
+        await OrderStore.createCompleteOrder(newCompleteOrder);
       expect(createResult.ok).toBe(true);
       const order: CompleteOrder = createResult.data as CompleteOrder;
       expect(typeof order.id).toBe("number");
-      expect(order.productIds).toEqual(newCompletedOrder.productIds);
+      expect(order.productIds).toEqual(newCompleteOrder.productIds);
       expect(order.productQuantities).toEqual(
-        newCompletedOrder.productQuantities
+        newCompleteOrder.productQuantities
       );
-      expect(order.userId).toBe("april_serra");
+      expect(order.userId).toBe(newCompleteOrder.userId);
       expect(order.isCompleted).toBe(false);
     });
 
