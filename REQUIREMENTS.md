@@ -26,6 +26,8 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 
 ### Orders
 
+- Create `/orders` [POST] [token required]
+- Show `/orders/:order-id` [GET] [token required]
 - Current Orders by user (args: user id): `/users/:user-id/orders` [GET] [token required]
 - Completed Orders by user (args: user id): `/users/:user-id/completed-orders` [token required]
 
