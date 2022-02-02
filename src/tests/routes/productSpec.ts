@@ -76,10 +76,10 @@ describe("Product handler endpoint", (): void => {
     });
 
     it("should return error for invalid product data", async (): Promise<void> => {
-      const invalidProduct1: Product = {
+      const invalidProduct1: object = {
         price: 2321.32,
         category: "Furniture",
-      } as Product;
+      };
       const response1: Response = await request(app)
         .post("/product")
         .send(invalidProduct1)
@@ -87,7 +87,7 @@ describe("Product handler endpoint", (): void => {
       expect(response1.status).toBe(httpStatus(ProductFieldsIncorrectError));
       expect(response1.body).toBe(ProductFieldsIncorrectError.toString());
 
-      const invalidProduct2: Product = {
+      const invalidProduct2: object = {
         name: "Invalid Product",
         price: -9382.21,
         category: "Invalid",

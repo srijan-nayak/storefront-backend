@@ -25,7 +25,7 @@ describe("OrderProductStore", (): void => {
     });
 
     it("should return error for invalid order product data", async (): Promise<void> => {
-      const invalidOrderProduct1: unknown = {
+      const invalidOrderProduct1: object = {
         order_id: 203,
         quantity: 1,
       };
@@ -34,7 +34,7 @@ describe("OrderProductStore", (): void => {
       expect(createResult1.ok).toBe(false);
       expect(createResult1.data).toBe(OrderProductFieldsIncorrectError);
 
-      const invalidOrderProduct2: unknown = {
+      const invalidOrderProduct2: object = {
         order_id: 203,
         product_id: 101,
         quantity: -12,

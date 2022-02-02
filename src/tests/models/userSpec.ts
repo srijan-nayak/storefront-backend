@@ -71,22 +71,26 @@ describe("UserStore", (): void => {
     });
 
     it("should return error for invalid user data", async (): Promise<void> => {
-      const invalidUser1: User = {
+      const invalidUser1: object = {
         firstName: "Columbus",
         lastName: "Emma",
         password: "subsequentlycohen",
-      } as User;
-      const createResult1: Result<User> = await UserStore.create(invalidUser1);
+      };
+      const createResult1: Result<User> = await UserStore.create(
+        invalidUser1 as User
+      );
       expect(createResult1.ok).toBe(false);
       expect(createResult1.data).toBe(UserFieldsIncorrectError);
 
-      const invalidUser2: User = {
+      const invalidUser2: object = {
         id: "nereida_towana",
         firstName: "Nereida",
         lastName: "Towana",
         password: "",
       };
-      const createResult2: Result<User> = await UserStore.create(invalidUser2);
+      const createResult2: Result<User> = await UserStore.create(
+        invalidUser2 as User
+      );
       expect(createResult2.ok).toBe(false);
       expect(createResult2.data).toBe(UserFieldsIncorrectError);
     });

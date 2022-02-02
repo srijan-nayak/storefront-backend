@@ -56,23 +56,23 @@ describe("ProductStore", (): void => {
     });
 
     it("should return error for invalid product data", async (): Promise<void> => {
-      const invalidProduct1: Product = {
+      const invalidProduct1: object = {
         name: "Invalid Product",
         price: 999.99,
-      } as Product;
+      };
       const createResult1: Result<Product> = await ProductStore.create(
-        invalidProduct1
+        invalidProduct1 as Product
       );
       expect(createResult1.ok).toBe(false);
       expect(createResult1.data).toBe(ProductFieldsIncorrectError);
 
-      const invalidProduct2: Product = {
+      const invalidProduct2: object = {
         name: "Invalid Product",
         price: -241.23,
         category: "Invalid",
       };
       const createResult2: Result<Product> = await ProductStore.create(
-        invalidProduct2
+        invalidProduct2 as Product
       );
       expect(createResult2.ok).toBe(false);
       expect(createResult2.data).toBe(ProductFieldsIncorrectError);

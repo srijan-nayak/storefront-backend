@@ -25,7 +25,7 @@ describe("OrderStore", (): void => {
     });
 
     it("should return error for invalid order data", async (): Promise<void> => {
-      const invalidOrder1: unknown = {
+      const invalidOrder1: object = {
         user_id: 12,
         completed: false,
       };
@@ -35,7 +35,7 @@ describe("OrderStore", (): void => {
       expect(createResult1.ok).toBe(false);
       expect(createResult1.data).toBe(OrderFieldsIncorrectError);
 
-      const invalidOrder2: unknown = {
+      const invalidOrder2: object = {
         completed: false,
       };
       const createResult2: Result<Order> = await OrderStore.create(
@@ -117,7 +117,7 @@ describe("OrderStore", (): void => {
     });
 
     it("should return error for invalid order data", async (): Promise<void> => {
-      const invalidOrder1: unknown = {
+      const invalidOrder1: object = {
         productIds: 101,
         productQuantities: 4,
         userId: "antasia_marjory",
@@ -128,7 +128,7 @@ describe("OrderStore", (): void => {
       expect(createResult1.ok).toBe(false);
       expect(createResult1.data).toBe(CompleteOrderIncorrectFieldsError);
 
-      const invalidOrder2: unknown = {
+      const invalidOrder2: object = {
         productIds: [102, 105],
         productQuantities: [2, -1],
         userId: "antasia_marjory",
@@ -139,7 +139,7 @@ describe("OrderStore", (): void => {
       expect(createResult2.ok).toBe(false);
       expect(createResult2.data).toBe(CompleteOrderIncorrectFieldsError);
 
-      const invalidOrder3: unknown = {
+      const invalidOrder3: object = {
         productIds: [102, 105],
         productQuantities: [2, 1],
       };

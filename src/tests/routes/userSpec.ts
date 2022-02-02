@@ -103,18 +103,18 @@ describe("User handler endpoint", (): void => {
     });
 
     it("should return error for invalid user data", async (): Promise<void> => {
-      const invalidUser1: User = {
+      const invalidUser1: object = {
         firstName: "Columbus",
         lastName: "Emma",
         password: "subsequentlycohen",
-      } as User;
+      };
       const response1: Response = await request(app)
         .post("/user")
         .send(invalidUser1);
       expect(response1.status).toBe(httpStatus(UserFieldsIncorrectError));
       expect(response1.body).toBe(UserFieldsIncorrectError.toString());
 
-      const invalidUser2: User = {
+      const invalidUser2: object = {
         id: "nereida_towana",
         firstName: "Nereida",
         lastName: "Towana",
