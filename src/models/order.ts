@@ -61,6 +61,25 @@ class OrderStore {
     return { ok: true, data: createdCompletedOrder };
   }
 
+  static async showCompleteOrder(
+    orderId: number
+  ): Promise<Result<CompleteOrder>> {
+    const showResult: Result<Order> = await OrderStore.show(orderId);
+    if (!showResult.ok) return showResult;
+    const order: Order = showResult.data;
+
+    const orderProductsShowResult: Result<OrderProduct[]> =
+      await OrderProductStore.show(order.id as number);
+    if (!orderProductsShowResult.ok) return orderProductsShowResult;
+    const orderProducts: OrderProduct[] = orderProductsShowResult.data;
+
+    const completeOrder: CompleteOrder = OrderStore.convertToCompleteOrder(
+      order,
+      orderProducts
+    );
+    return { ok: true, data: completeOrder };
+  }
+
   static async showUserCompleteOrders(
     userId: string
   ): Promise<Result<CompleteOrder[]>> {
@@ -79,14 +98,10 @@ class OrderStore {
 
     const userCompleteOrders: CompleteOrder[] = [];
     for (const order of userOrders) {
-      const orderProductsShowResult: Result<OrderProduct[]> =
-        await OrderProductStore.show(order.id as number);
-      if (!orderProductsShowResult.ok) return orderProductsShowResult;
-      const orderProducts: OrderProduct[] = orderProductsShowResult.data;
-      const completeOrder: CompleteOrder = OrderStore.convertToCompleteOrder(
-        order,
-        orderProducts
-      );
+      const showCompleteOrderResult: Result<CompleteOrder> =
+        await OrderStore.showCompleteOrder(order.id as number);
+      if (!showCompleteOrderResult.ok) return showCompleteOrderResult;
+      const completeOrder: CompleteOrder = showCompleteOrderResult.data;
       userCompleteOrders.push(completeOrder);
     }
 
