@@ -176,6 +176,35 @@ describe("OrderStore", (): void => {
     });
   });
 
+  describe("showCompleteOrder method", (): void => {
+    it("should return complete details for existing order", async (): Promise<void> => {
+      const showCompleteOrderResult: Result<CompleteOrder> =
+        await OrderStore.showCompleteOrder(202);
+      expect(showCompleteOrderResult.ok).toBe(true);
+      const completeOrder: CompleteOrder =
+        showCompleteOrderResult.data as CompleteOrder;
+      const { id, productIds, productQuantities, userId, isCompleted } =
+        completeOrder;
+      expect(typeof id).toBe("number");
+      expect(typeof userId).toBe("string");
+      expect(typeof isCompleted).toBe("boolean");
+
+      expect(productIds.length).toBe(productQuantities.length);
+      expect(productIds.length).toBeGreaterThan(1);
+      for (let i = 0; i < productIds.length; i++) {
+        expect(typeof productIds[i]).toBe("number");
+        expect(typeof productQuantities[i]).toBe("number");
+      }
+    });
+
+    it("should return error for non-exiting order", async (): Promise<void> => {
+      const showCompleteOrderResult: Result<CompleteOrder> =
+        await OrderStore.showCompleteOrder(873);
+      expect(showCompleteOrderResult.ok).toBe(false);
+      expect(showCompleteOrderResult.data).toBe(OrderNotFoundError);
+    });
+  });
+
   describe("showUserCompleteOrders method", (): void => {
     it("should return complete orders", async (): Promise<void> => {
       const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
