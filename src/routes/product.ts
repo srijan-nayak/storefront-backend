@@ -19,10 +19,10 @@ productHandler.get(
 );
 
 productHandler.get(
-  "/:id",
+  "/:productId",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const productId: number = parseInt(req.params["id"]);
+      const productId: number = parseInt(req.params.productId);
       const showResult: Result<Product> = await ProductStore.show(productId);
       if (!showResult.ok) {
         const error: Error = showResult.data;

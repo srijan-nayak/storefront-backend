@@ -20,11 +20,11 @@ userHandler.get(
 );
 
 userHandler.get(
-  "/:id",
+  "/:userId",
   checkAuthorization,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId: string = req.params["id"];
+      const userId: string = req.params.userId;
       const showResult: Result<User> = await UserStore.show(userId);
       if (!showResult.ok) {
         const error: Error = showResult.data;

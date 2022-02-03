@@ -7,11 +7,11 @@ import { httpStatus } from "../errors";
 const orderHandler: Router = Router();
 
 orderHandler.get(
-  "/:id",
+  "/:orderId",
   checkAuthorization,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const orderId: number = parseInt(req.params["id"]);
+      const orderId: number = parseInt(req.params.orderId);
       const showCompleteOrderResult: Result<CompleteOrder> =
         await OrderStore.showCompleteOrder(orderId);
       if (!showCompleteOrderResult.ok) {
