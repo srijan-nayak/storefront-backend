@@ -4,8 +4,11 @@ import { validToken } from "./userSpec";
 import { CompleteOrder } from "../../models/order";
 import {
   AuthorizationError,
+  CompleteOrderIncorrectFieldsError,
   httpStatus,
   OrderNotFoundError,
+  ProductNotFoundError,
+  UserNotFoundError,
 } from "../../errors";
 
 describe("Order handler endpoint", (): void => {
@@ -42,6 +45,119 @@ describe("Order handler endpoint", (): void => {
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(httpStatus(OrderNotFoundError));
       expect(response.body).toBe(OrderNotFoundError.toString());
+    });
+  });
+
+  describe("POST /order", (): void => {
+    it("should return error without valid token", async (): Promise<void> => {
+      const newCompleteOrder: CompleteOrder = {
+        productIds: [102, 103, 105],
+        productQuantities: [4, 2, 2],
+        userId: "taysia_amylynn",
+        isCompleted: false,
+      };
+      const response: Response = await request(app)
+        .post("/order")
+        .send(newCompleteOrder);
+      expect(response.status).toBe(httpStatus(AuthorizationError));
+      expect(response.body).toBe(AuthorizationError.toString());
+    });
+
+    it("should return created complete order", async (): Promise<void> => {
+      const newCompleteOrder: CompleteOrder = {
+        productIds: [102, 103, 105],
+        productQuantities: [4, 2, 2],
+        userId: "taysia_amylynn",
+        isCompleted: false,
+      };
+      const response: Response = await request(app)
+        .post("/order")
+        .send(newCompleteOrder)
+        .auth(validToken, { type: "bearer" });
+      expect(response.status).toBe(200);
+      const order: CompleteOrder = response.body;
+      expect(typeof order.id).toBe("number");
+      expect(order.productIds).toEqual(newCompleteOrder.productIds);
+      expect(order.productQuantities).toEqual(
+        newCompleteOrder.productQuantities
+      );
+      expect(order.userId).toBe(newCompleteOrder.userId);
+      expect(order.isCompleted).toBe(false);
+    });
+
+    it("should return error for invalid order data", async (): Promise<void> => {
+      const invalidOrder1: object = {
+        productIds: 101,
+        productQuantities: 4,
+        userId: "antasia_marjory",
+        isCompleted: false,
+      };
+      const response1: Response = await request(app)
+        .post("/order")
+        .send(invalidOrder1)
+        .auth(validToken, { type: "bearer" });
+      expect(response1.status).toBe(
+        httpStatus(CompleteOrderIncorrectFieldsError)
+      );
+      expect(response1.body).toBe(CompleteOrderIncorrectFieldsError.toString());
+
+      const invalidOrder2: object = {
+        productIds: [102, 105],
+        productQuantities: [2, -1],
+        userId: "antasia_marjory",
+        isCompleted: false,
+      };
+      const response2: Response = await request(app)
+        .post("/order")
+        .send(invalidOrder2)
+        .auth(validToken, { type: "bearer" });
+      expect(response2.status).toBe(
+        httpStatus(CompleteOrderIncorrectFieldsError)
+      );
+      expect(response2.body).toBe(CompleteOrderIncorrectFieldsError.toString());
+
+      const invalidOrder3: object = {
+        productIds: [102, 105],
+        productQuantities: [2, 1],
+      };
+      const response3: Response = await request(app)
+        .post("/order")
+        .send(invalidOrder3)
+        .auth(validToken, { type: "bearer" });
+      expect(response3.status).toBe(
+        httpStatus(CompleteOrderIncorrectFieldsError)
+      );
+      expect(response3.body).toBe(CompleteOrderIncorrectFieldsError.toString());
+    });
+
+    it("should return error for non-existing products", async (): Promise<void> => {
+      const newOrder: CompleteOrder = {
+        productIds: [103, 185],
+        productQuantities: [4, 2],
+        userId: "april_serra",
+        isCompleted: true,
+      };
+      const response: Response = await request(app)
+        .post("/order")
+        .send(newOrder)
+        .auth(validToken, { type: "bearer" });
+      expect(response.status).toBe(httpStatus(ProductNotFoundError));
+      expect(response.body).toBe(ProductNotFoundError.toString());
+    });
+
+    it("should return error for non-existing user", async (): Promise<void> => {
+      const newOrder: CompleteOrder = {
+        productIds: [103, 105],
+        productQuantities: [4, 2],
+        userId: "random_user",
+        isCompleted: false,
+      };
+      const response: Response = await request(app)
+        .post("/order")
+        .send(newOrder)
+        .auth(validToken, { type: "bearer" });
+      expect(response.status).toBe(httpStatus(UserNotFoundError));
+      expect(response.body).toBe(UserNotFoundError.toString());
     });
   });
 });
