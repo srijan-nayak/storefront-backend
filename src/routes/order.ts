@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { checkAuthorization } from "../middleware";
 import { Result } from "../result";
-import OrderStore, { CompleteOrder } from "../models/order";
+import OrderStore, { CompleteOrder, OrderStatus } from "../models/order";
 import { httpStatus } from "../errors";
 
 const orderHandler: Router = Router();
@@ -48,5 +48,30 @@ orderHandler.post(
     }
   }
 );
+
+const userOrderHandler: Router = Router({ mergeParams: true });
+
+userOrderHandler.get(
+  "/active",
+  checkAuthorization,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId: string = req.params.userId;
+      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
+        await OrderStore.showUserCompleteOrders(userId, OrderStatus.Active);
+      if (!showUserCompleteOrdersResult.ok) {
+        const error: Error = showUserCompleteOrdersResult.data;
+        res.status(httpStatus(error)).json(error.toString());
+        return;
+      }
+      const completeOrders: CompleteOrder[] = showUserCompleteOrdersResult.data;
+      res.json(completeOrders);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+export { userOrderHandler };
 
 export default orderHandler;

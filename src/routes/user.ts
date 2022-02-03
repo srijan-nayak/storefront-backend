@@ -3,8 +3,11 @@ import UserStore, { User } from "../models/user";
 import { Result } from "../result";
 import { checkAuthorization } from "../middleware";
 import { httpStatus } from "../errors";
+import { userOrderHandler } from "./order";
 
 const userHandler: Router = Router();
+
+userHandler.use("/:userId/orders", userOrderHandler);
 
 userHandler.get(
   "/",
