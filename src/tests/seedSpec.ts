@@ -44,6 +44,11 @@ const sampleOrders: Order[] = [
   { id: 201, user_id: "april_serra", completed: false },
   { id: 202, user_id: "antasia_marjory", completed: false },
   { id: 203, user_id: "april_serra", completed: false },
+  { id: 204, user_id: "april_serra", completed: true },
+  { id: 205, user_id: "april_serra", completed: true },
+  { id: 206, user_id: "antasia_marjory", completed: false },
+  { id: 207, user_id: "antasia_marjory", completed: true },
+  { id: 208, user_id: "antasia_marjory", completed: true },
 ];
 
 const sampleOrderProducts: OrderProduct[] = [
@@ -56,6 +61,20 @@ const sampleOrderProducts: OrderProduct[] = [
   { order_id: 202, product_id: 101, quantity: 6 },
   { order_id: 203, product_id: 106, quantity: 2 },
   { order_id: 203, product_id: 105, quantity: 2 },
+  { order_id: 204, product_id: 101, quantity: 3 },
+  { order_id: 204, product_id: 103, quantity: 1 },
+  { order_id: 204, product_id: 104, quantity: 6 },
+  { order_id: 205, product_id: 102, quantity: 3 },
+  { order_id: 205, product_id: 104, quantity: 2 },
+  { order_id: 206, product_id: 101, quantity: 6 },
+  { order_id: 206, product_id: 102, quantity: 6 },
+  { order_id: 206, product_id: 103, quantity: 6 },
+  { order_id: 207, product_id: 104, quantity: 6 },
+  { order_id: 207, product_id: 105, quantity: 2 },
+  { order_id: 208, product_id: 101, quantity: 6 },
+  { order_id: 208, product_id: 103, quantity: 3 },
+  { order_id: 208, product_id: 104, quantity: 2 },
+  { order_id: 208, product_id: 105, quantity: 7 },
 ];
 
 beforeEach(async (): Promise<void> => {

@@ -9,8 +9,9 @@ import {
   OrderFieldsIncorrectError,
   OrderNotFoundError,
   ProductNotFoundError,
+  UserActiveOrdersNotFoundError,
+  UserCompletedOrdersNotFoundError,
   UserNotFoundError,
-  UserOrdersNotFoundError,
 } from "../../errors";
 
 describe("OrderStore", (): void => {
@@ -210,9 +211,12 @@ describe("OrderStore", (): void => {
   });
 
   describe("showUserCompleteOrders method", (): void => {
-    it("should return complete orders", async (): Promise<void> => {
+    it("should return active complete orders", async (): Promise<void> => {
       const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
-        await OrderStore.showUserCompleteOrders("april_serra");
+        await OrderStore.showUserCompleteOrders(
+          "april_serra",
+          OrderStatus.Active
+        );
       expect(showUserCompleteOrdersResult.ok).toBe(true);
 
       const completeOrders: CompleteOrder[] =
@@ -223,7 +227,34 @@ describe("OrderStore", (): void => {
           completeOrder;
         expect(typeof id).toBe("number");
         expect(typeof userId).toBe("string");
-        expect([OrderStatus.Active, OrderStatus.Completed]).toContain(status);
+        expect(status).toBe(OrderStatus.Active);
+
+        expect(productIds.length).toBe(productQuantities.length);
+        expect(productIds.length).toBeGreaterThan(1);
+        for (let i = 0; i < productIds.length; i++) {
+          expect(typeof productIds[i]).toBe("number");
+          expect(typeof productQuantities[i]).toBe("number");
+        }
+      }
+    });
+
+    it("should return completed complete orders", async (): Promise<void> => {
+      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
+        await OrderStore.showUserCompleteOrders(
+          "antasia_marjory",
+          OrderStatus.Completed
+        );
+      expect(showUserCompleteOrdersResult.ok).toBe(true);
+
+      const completeOrders: CompleteOrder[] =
+        showUserCompleteOrdersResult.data as CompleteOrder[];
+      expect(completeOrders.length).toBeGreaterThan(1);
+      for (const completeOrder of completeOrders) {
+        const { id, productIds, productQuantities, userId, status } =
+          completeOrder;
+        expect(typeof id).toBe("number");
+        expect(typeof userId).toBe("string");
+        expect(status).toBe(OrderStatus.Completed);
 
         expect(productIds.length).toBe(productQuantities.length);
         expect(productIds.length).toBeGreaterThan(1);
@@ -236,16 +267,36 @@ describe("OrderStore", (): void => {
 
     it("should return error for non-existing user", async (): Promise<void> => {
       const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
-        await OrderStore.showUserCompleteOrders("random_user");
+        await OrderStore.showUserCompleteOrders(
+          "random_user",
+          OrderStatus.Active
+        );
       expect(showUserCompleteOrdersResult.ok).toBe(false);
       expect(showUserCompleteOrdersResult.data).toBe(UserNotFoundError);
     });
 
-    it("should return error for user not having any orders", async (): Promise<void> => {
+    it("should return error for user not having any active orders", async (): Promise<void> => {
       const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
-        await OrderStore.showUserCompleteOrders("taysia_amylynn");
+        await OrderStore.showUserCompleteOrders(
+          "taysia_amylynn",
+          OrderStatus.Active
+        );
       expect(showUserCompleteOrdersResult.ok).toBe(false);
-      expect(showUserCompleteOrdersResult.data).toBe(UserOrdersNotFoundError);
+      expect(showUserCompleteOrdersResult.data).toBe(
+        UserActiveOrdersNotFoundError
+      );
+    });
+
+    it("should return error for user not having any complete orders", async (): Promise<void> => {
+      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
+        await OrderStore.showUserCompleteOrders(
+          "taysia_amylynn",
+          OrderStatus.Completed
+        );
+      expect(showUserCompleteOrdersResult.ok).toBe(false);
+      expect(showUserCompleteOrdersResult.data).toBe(
+        UserCompletedOrdersNotFoundError
+      );
     });
   });
 });
