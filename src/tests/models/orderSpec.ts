@@ -226,7 +226,7 @@ describe("OrderStore", (): void => {
         const { id, productIds, productQuantities, userId, status } =
           completeOrder;
         expect(typeof id).toBe("number");
-        expect(typeof userId).toBe("string");
+        expect(userId).toBe("april_serra");
         expect(status).toBe(OrderStatus.Active);
 
         expect(productIds.length).toBe(productQuantities.length);
