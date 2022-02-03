@@ -12,16 +12,16 @@ import {
 } from "../../errors";
 
 describe("Order handler endpoint", (): void => {
-  describe("GET /order/:id", (): void => {
+  describe("GET /orders/:id", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
-      const response: Response = await request(app).get("/order/202");
+      const response: Response = await request(app).get("/orders/202");
       expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
     });
 
     it("should return complete details for existing order", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/order/202")
+        .get("/orders/202")
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(200);
       const completeOrder: CompleteOrder = response.body;
@@ -41,14 +41,14 @@ describe("Order handler endpoint", (): void => {
 
     it("should return error for non-existing order", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/order/644")
+        .get("/orders/644")
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(httpStatus(OrderNotFoundError));
       expect(response.body).toBe(OrderNotFoundError.toString());
     });
   });
 
-  describe("POST /order", (): void => {
+  describe("POST /orders", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
       const newCompleteOrder: CompleteOrder = {
         productIds: [102, 103, 105],
@@ -57,7 +57,7 @@ describe("Order handler endpoint", (): void => {
         status: "active" as OrderStatus,
       };
       const response: Response = await request(app)
-        .post("/order")
+        .post("/orders")
         .send(newCompleteOrder);
       expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
@@ -71,7 +71,7 @@ describe("Order handler endpoint", (): void => {
         status: "active" as OrderStatus,
       };
       const response: Response = await request(app)
-        .post("/order")
+        .post("/orders")
         .send(newCompleteOrder)
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(200);
@@ -93,7 +93,7 @@ describe("Order handler endpoint", (): void => {
         status: "active",
       };
       const response1: Response = await request(app)
-        .post("/order")
+        .post("/orders")
         .send(invalidOrder1)
         .auth(validToken, { type: "bearer" });
       expect(response1.status).toBe(
@@ -108,7 +108,7 @@ describe("Order handler endpoint", (): void => {
         status: "active",
       };
       const response2: Response = await request(app)
-        .post("/order")
+        .post("/orders")
         .send(invalidOrder2)
         .auth(validToken, { type: "bearer" });
       expect(response2.status).toBe(
@@ -121,7 +121,7 @@ describe("Order handler endpoint", (): void => {
         productQuantities: [2, 1],
       };
       const response3: Response = await request(app)
-        .post("/order")
+        .post("/orders")
         .send(invalidOrder3)
         .auth(validToken, { type: "bearer" });
       expect(response3.status).toBe(
@@ -138,7 +138,7 @@ describe("Order handler endpoint", (): void => {
         status: "completed" as OrderStatus,
       };
       const response: Response = await request(app)
-        .post("/order")
+        .post("/orders")
         .send(newOrder)
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(httpStatus(ProductNotFoundError));
@@ -153,7 +153,7 @@ describe("Order handler endpoint", (): void => {
         status: "active" as OrderStatus,
       };
       const response: Response = await request(app)
-        .post("/order")
+        .post("/orders")
         .send(newOrder)
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(httpStatus(UserNotFoundError));

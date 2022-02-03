@@ -16,9 +16,9 @@ app.get("/", (_req: Request, res: Response): void => {
   res.json("root endpoint");
 });
 
-app.use("/user", userHandler);
-app.use("/product", productHandler);
-app.use("/order", orderHandler);
+app.use("/users", userHandler);
+app.use("/products", productHandler);
+app.use("/orders", orderHandler);
 
 app.use(dbErrorHandler);
 

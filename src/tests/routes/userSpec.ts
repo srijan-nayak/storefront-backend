@@ -18,16 +18,16 @@ const env = process.env;
 export const validToken: string = sign("auth", env["JWT_SECRET"] as string);
 
 describe("User handler endpoint", (): void => {
-  describe("GET /user", (): void => {
+  describe("GET /users", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
-      const response: Response = await request(app).get("/user");
+      const response: Response = await request(app).get("/users");
       expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
     });
 
     it("should return a list of all users", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/user")
+        .get("/users")
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(200);
       const users: User[] = response.body;
@@ -41,10 +41,10 @@ describe("User handler endpoint", (): void => {
     });
   });
 
-  describe("GET /user/:id", (): void => {
+  describe("GET /users/:id", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
       const response: Response = await request(app).get(
-        "/user/antasia_marjory"
+        "/users/antasia_marjory"
       );
       expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
@@ -52,7 +52,7 @@ describe("User handler endpoint", (): void => {
 
     it("should return details for existing user", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/user/antasia_marjory")
+        .get("/users/antasia_marjory")
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(200);
       const user: User = response.body;
@@ -64,14 +64,14 @@ describe("User handler endpoint", (): void => {
 
     it("should return error for non-existing user", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/user/some_user")
+        .get("/users/some_user")
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(httpStatus(UserNotFoundError));
       expect(response.body).toBe(UserNotFoundError.toString());
     });
   });
 
-  describe("POST /user", (): void => {
+  describe("POST /users", (): void => {
     it("should return created user", async (): Promise<void> => {
       const newUser: User = {
         id: "lucerito_lazer",
@@ -79,7 +79,9 @@ describe("User handler endpoint", (): void => {
         lastName: "Lazer",
         password: "mindcontinually",
       };
-      const response: Response = await request(app).post("/user").send(newUser);
+      const response: Response = await request(app)
+        .post("/users")
+        .send(newUser);
       expect(response.status).toBe(200);
       const user: User = response.body;
       expect(user.id).toBe(newUser.id);
@@ -96,7 +98,7 @@ describe("User handler endpoint", (): void => {
         password: "husbandpope",
       };
       const response: Response = await request(app)
-        .post("/user")
+        .post("/users")
         .send(duplicateUser);
       expect(response.status).toBe(httpStatus(UserAlreadyExistsError));
       expect(response.body).toBe(UserAlreadyExistsError.toString());
@@ -109,7 +111,7 @@ describe("User handler endpoint", (): void => {
         password: "subsequentlycohen",
       };
       const response1: Response = await request(app)
-        .post("/user")
+        .post("/users")
         .send(invalidUser1);
       expect(response1.status).toBe(httpStatus(UserFieldsIncorrectError));
       expect(response1.body).toBe(UserFieldsIncorrectError.toString());
@@ -121,17 +123,17 @@ describe("User handler endpoint", (): void => {
         password: "",
       };
       const response2: Response = await request(app)
-        .post("/user")
+        .post("/users")
         .send(invalidUser2);
       expect(response2.status).toBe(httpStatus(UserFieldsIncorrectError));
       expect(response2.body).toBe(UserFieldsIncorrectError.toString());
     });
   });
 
-  describe("POST /user/authenticate", (): void => {
+  describe("POST /users/authenticate", (): void => {
     it("should return JWT for correct credentials", async (): Promise<void> => {
       const response: Response = await request(app)
-        .post("/user/authenticate")
+        .post("/users/authenticate")
         .send({ id: "antasia_marjory", password: "scenariofallen" });
       expect(response.status).toBe(200);
       const jwt: string = response.body;
@@ -140,13 +142,13 @@ describe("User handler endpoint", (): void => {
 
     it("should return error for incorrect credentials", async (): Promise<void> => {
       const response1: Response = await request(app)
-        .post("/user/authenticate")
+        .post("/users/authenticate")
         .send({ id: "non_existing_user", password: "randompassword" });
       expect(response1.status).toBe(httpStatus(UserNotFoundError));
       expect(response1.body).toBe(UserNotFoundError.toString());
 
       const response2: Response = await request(app)
-        .post("/user/authenticate")
+        .post("/users/authenticate")
         .send({ id: "april_serra", password: "wrondpassword" });
       expect(response2.status).toBe(httpStatus(UserPasswordIncorrectError));
       expect(response2.body).toBe(UserPasswordIncorrectError.toString());

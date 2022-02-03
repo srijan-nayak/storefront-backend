@@ -10,9 +10,9 @@ import {
 import { validToken } from "./userSpec";
 
 describe("Product handler endpoint", (): void => {
-  describe("GET /product", (): void => {
+  describe("GET /products", (): void => {
     it("should return a list of all products", async (): Promise<void> => {
-      const response: Response = await request(app).get("/product");
+      const response: Response = await request(app).get("/products");
       expect(response.status).toBe(200);
       const products: Product[] = response.body;
       expect(products.length).toBeGreaterThan(1);
@@ -25,9 +25,9 @@ describe("Product handler endpoint", (): void => {
     });
   });
 
-  describe("GET /product/:id", (): void => {
+  describe("GET /products/:id", (): void => {
     it("should return details for existing product", async (): Promise<void> => {
-      const response: Response = await request(app).get("/product/103");
+      const response: Response = await request(app).get("/products/103");
       expect(response.status).toBe(200);
       const product: Product = response.body;
       expect(product.id).toBe(103);
@@ -37,13 +37,13 @@ describe("Product handler endpoint", (): void => {
     });
 
     it("should return error for non-existing product", async (): Promise<void> => {
-      const response: Response = await request(app).get("/product/182");
+      const response: Response = await request(app).get("/products/182");
       expect(response.status).toBe(httpStatus(ProductNotFoundError));
       expect(response.body).toBe(ProductNotFoundError.toString());
     });
   });
 
-  describe("POST /product", (): void => {
+  describe("POST /products", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
       const newProduct: Product = {
         name: "Fantastic Frozen Salad",
@@ -51,7 +51,7 @@ describe("Product handler endpoint", (): void => {
         category: "Food",
       };
       const response: Response = await request(app)
-        .post("/product")
+        .post("/products")
         .send(newProduct);
       expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
@@ -64,7 +64,7 @@ describe("Product handler endpoint", (): void => {
         category: "Food",
       };
       const response: Response = await request(app)
-        .post("/product")
+        .post("/products")
         .send(newProduct)
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(200);
@@ -81,7 +81,7 @@ describe("Product handler endpoint", (): void => {
         category: "Furniture",
       };
       const response1: Response = await request(app)
-        .post("/product")
+        .post("/products")
         .send(invalidProduct1)
         .auth(validToken, { type: "bearer" });
       expect(response1.status).toBe(httpStatus(ProductFieldsIncorrectError));
@@ -93,7 +93,7 @@ describe("Product handler endpoint", (): void => {
         category: "Invalid",
       };
       const response2: Response = await request(app)
-        .post("/product")
+        .post("/products")
         .send(invalidProduct2)
         .auth(validToken, { type: "bearer" });
       expect(response2.status).toBe(httpStatus(ProductFieldsIncorrectError));
