@@ -27,4 +27,26 @@ orderHandler.get(
   }
 );
 
+orderHandler.post(
+  "/",
+  checkAuthorization,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const newCompleteOrder: CompleteOrder = req.body;
+      const createCompleteOrderResult: Result<CompleteOrder> =
+        await OrderStore.createCompleteOrder(newCompleteOrder);
+      if (!createCompleteOrderResult.ok) {
+        const error: Error = createCompleteOrderResult.data;
+        res.status(httpStatus(error)).json(error.toString());
+        return;
+      }
+      const createdCompleteOrder: CompleteOrder =
+        createCompleteOrderResult.data;
+      res.json(createdCompleteOrder);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default orderHandler;
