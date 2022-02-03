@@ -72,6 +72,27 @@ userOrderHandler.get(
   }
 );
 
+userOrderHandler.get(
+  "/completed",
+  checkAuthorization,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId: string = req.params.userId;
+      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
+        await OrderStore.showUserCompleteOrders(userId, OrderStatus.Completed);
+      if (!showUserCompleteOrdersResult.ok) {
+        const error: Error = showUserCompleteOrdersResult.data;
+        res.status(httpStatus(error)).json(error.toString());
+        return;
+      }
+      const completeOrders: CompleteOrder[] = showUserCompleteOrdersResult.data;
+      res.json(completeOrders);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export { userOrderHandler };
 
 export default orderHandler;
