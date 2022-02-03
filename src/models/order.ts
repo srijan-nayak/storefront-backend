@@ -3,7 +3,8 @@ import {
   CompleteOrderIncorrectFieldsError,
   OrderFieldsIncorrectError,
   OrderNotFoundError,
-  UserOrdersNotFoundError,
+  UserActiveOrdersNotFoundError,
+  UserCompletedOrdersNotFoundError,
 } from "../errors";
 import UserStore, { User } from "./user";
 import { QueryResult } from "pg";
@@ -88,7 +89,8 @@ class OrderStore {
   }
 
   static async showUserCompleteOrders(
-    userId: string
+    userId: string,
+    status: OrderStatus
   ): Promise<Result<CompleteOrder[]>> {
     const userShowResult: Result<User> = await UserStore.show(userId);
     if (!userShowResult.ok) return userShowResult;
@@ -96,12 +98,18 @@ class OrderStore {
     const userOrdersQueryResult: QueryResult<Order> = await pgPool.query(
       `select *
        from orders
-       where user_id = $1`,
-      [userId]
+       where user_id = $1
+         and completed = $2`,
+      [userId, status === OrderStatus.Completed]
     );
     const userOrders: Order[] = userOrdersQueryResult.rows;
-    if (userOrders.length === 0)
-      return { ok: false, data: UserOrdersNotFoundError };
+    if (userOrders.length === 0) {
+      const ordersNotFoundError =
+        status === OrderStatus.Active
+          ? UserActiveOrdersNotFoundError
+          : UserCompletedOrdersNotFoundError;
+      return { ok: false, data: ordersNotFoundError };
+    }
 
     const userCompleteOrders: CompleteOrder[] = [];
     for (const order of userOrders) {
