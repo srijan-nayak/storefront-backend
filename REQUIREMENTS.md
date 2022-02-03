@@ -13,7 +13,7 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 ### Products
 
 - Index: `/products` [GET]
-- Show: `/products/:product-id` [GET]
+- Show: `/products/:productId` [GET]
 - Create: `/products` [POST] [token required]
 - Top 5 most popular products: `/popular-products` [GET]
 - Products by category (args: product category): `/category-products/:category` [GET]
@@ -21,15 +21,16 @@ well as data shapes the frontend and backend have agreed meet the requirements o
 ### Users
 
 - Index: `/users` [GET] [token required]
-- Show: `/users/:user-id` [GET] [token required]
+- Show: `/users/:userId` [GET] [token required]
 - Create: `/users` [POST]
+- Authenticate: `/users/authenticate`
 
 ### Orders
 
 - Create `/orders` [POST] [token required]
-- Show `/orders/:order-id` [GET] [token required]
-- Current Orders by user (args: user id): `/users/:user-id/orders` [GET] [token required]
-- Completed Orders by user (args: user id): `/users/:user-id/completed-orders` [token required]
+- Show `/orders/:orderId` [GET] [token required]
+- Current Orders by user (args: user id): `/users/:userId/orders/active` [GET] [token required]
+- Completed Orders by user (args: user id): `/users/:userId/orders/completed` [GET] [token required]
 
 ## Data Shapes
 
