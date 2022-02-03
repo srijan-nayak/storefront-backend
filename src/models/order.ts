@@ -10,12 +10,17 @@ import { QueryResult } from "pg";
 import pgPool from "../database";
 import OrderProductStore, { OrderProduct } from "./order-product";
 
+export enum OrderStatus {
+  Active = "active",
+  Completed = "completed",
+}
+
 export type CompleteOrder = {
   id?: number;
   productIds: number[];
   productQuantities: number[];
   userId: string;
-  isCompleted: boolean;
+  status: OrderStatus;
 };
 
 export type Order = {
@@ -31,10 +36,12 @@ class OrderStore {
     if (!OrderStore.isCompleteOrder(completeOrder))
       return { ok: false, data: CompleteOrderIncorrectFieldsError };
 
-    const { userId, isCompleted, productIds, productQuantities } =
-      completeOrder;
+    const { userId, status, productIds, productQuantities } = completeOrder;
 
-    const order: Order = { user_id: userId, completed: isCompleted };
+    const order: Order = {
+      user_id: userId,
+      completed: status === OrderStatus.Completed,
+    };
     const orderCreateResult: Result<Order> = await OrderStore.create(order);
     if (!orderCreateResult.ok) return orderCreateResult;
     const createdOrder: Order = orderCreateResult.data;
@@ -187,7 +194,7 @@ class OrderStore {
     const productQuantities: unknown = (object as CompleteOrder)
       .productQuantities;
     const userId: unknown = (object as CompleteOrder).userId;
-    const isCompleted: unknown = (object as CompleteOrder).isCompleted;
+    const status: unknown = (object as CompleteOrder).status;
 
     if (id !== undefined && typeof id !== "number") return false;
 
@@ -202,14 +209,14 @@ class OrderStore {
     }
 
     if (typeof userId !== "string" || userId === "") return false;
-    return !(typeof isCompleted !== "boolean");
+    return status === OrderStatus.Active || status === OrderStatus.Completed;
   }
 
   private static convertToCompleteOrder(
     order: Order,
     orderProducts: OrderProduct[]
   ): CompleteOrder {
-    const { id, user_id: userId, completed: isCompleted } = order;
+    const { id, user_id: userId, completed } = order;
 
     const productIds: number[] = [];
     const productQuantities: number[] = [];
@@ -218,7 +225,11 @@ class OrderStore {
       productQuantities.push(quantity);
     }
 
-    return { id, productIds, productQuantities, userId, isCompleted };
+    const status: OrderStatus = completed
+      ? OrderStatus.Completed
+      : OrderStatus.Active;
+
+    return { id, productIds, productQuantities, userId, status };
   }
 }
 

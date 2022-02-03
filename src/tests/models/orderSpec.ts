@@ -1,4 +1,8 @@
-import OrderStore, { CompleteOrder, Order } from "../../models/order";
+import OrderStore, {
+  CompleteOrder,
+  Order,
+  OrderStatus,
+} from "../../models/order";
 import { Result } from "../../result";
 import {
   CompleteOrderIncorrectFieldsError,
@@ -101,7 +105,7 @@ describe("OrderStore", (): void => {
         productIds: [103, 105],
         productQuantities: [4, 2],
         userId: "april_serra",
-        isCompleted: false,
+        status: "active" as OrderStatus,
       };
       const createResult: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(newCompleteOrder);
@@ -113,7 +117,7 @@ describe("OrderStore", (): void => {
         newCompleteOrder.productQuantities
       );
       expect(order.userId).toBe(newCompleteOrder.userId);
-      expect(order.isCompleted).toBe(false);
+      expect(order.status).toBe(newCompleteOrder.status);
     });
 
     it("should return error for invalid order data", async (): Promise<void> => {
@@ -121,7 +125,7 @@ describe("OrderStore", (): void => {
         productIds: 101,
         productQuantities: 4,
         userId: "antasia_marjory",
-        isCompleted: false,
+        status: "active",
       };
       const createResult1: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(invalidOrder1 as CompleteOrder);
@@ -132,7 +136,7 @@ describe("OrderStore", (): void => {
         productIds: [102, 105],
         productQuantities: [2, -1],
         userId: "antasia_marjory",
-        isCompleted: false,
+        status: "active",
       };
       const createResult2: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(invalidOrder2 as CompleteOrder);
@@ -154,7 +158,7 @@ describe("OrderStore", (): void => {
         productIds: [103, 185],
         productQuantities: [4, 2],
         userId: "april_serra",
-        isCompleted: true,
+        status: "completed" as OrderStatus,
       };
       const createResult: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(newOrder);
@@ -167,7 +171,7 @@ describe("OrderStore", (): void => {
         productIds: [103, 105],
         productQuantities: [4, 2],
         userId: "random_user",
-        isCompleted: false,
+        status: "active" as OrderStatus,
       };
       const createResult: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(newOrder);
@@ -183,11 +187,11 @@ describe("OrderStore", (): void => {
       expect(showCompleteOrderResult.ok).toBe(true);
       const completeOrder: CompleteOrder =
         showCompleteOrderResult.data as CompleteOrder;
-      const { id, productIds, productQuantities, userId, isCompleted } =
+      const { id, productIds, productQuantities, userId, status } =
         completeOrder;
       expect(typeof id).toBe("number");
       expect(typeof userId).toBe("string");
-      expect(typeof isCompleted).toBe("boolean");
+      expect([OrderStatus.Active, OrderStatus.Completed]).toContain(status);
 
       expect(productIds.length).toBe(productQuantities.length);
       expect(productIds.length).toBeGreaterThan(1);
@@ -215,11 +219,11 @@ describe("OrderStore", (): void => {
         showUserCompleteOrdersResult.data as CompleteOrder[];
       expect(completeOrders.length).toBeGreaterThan(1);
       for (const completeOrder of completeOrders) {
-        const { id, productIds, productQuantities, userId, isCompleted } =
+        const { id, productIds, productQuantities, userId, status } =
           completeOrder;
         expect(typeof id).toBe("number");
         expect(typeof userId).toBe("string");
-        expect(typeof isCompleted).toBe("boolean");
+        expect([OrderStatus.Active, OrderStatus.Completed]).toContain(status);
 
         expect(productIds.length).toBe(productQuantities.length);
         expect(productIds.length).toBeGreaterThan(1);

@@ -1,7 +1,7 @@
 import request, { Response } from "supertest";
 import app from "../../index";
 import { validToken } from "./userSpec";
-import { CompleteOrder } from "../../models/order";
+import { CompleteOrder, OrderStatus } from "../../models/order";
 import {
   AuthorizationError,
   CompleteOrderIncorrectFieldsError,
@@ -25,11 +25,11 @@ describe("Order handler endpoint", (): void => {
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(200);
       const completeOrder: CompleteOrder = response.body;
-      const { id, productIds, productQuantities, userId, isCompleted } =
+      const { id, productIds, productQuantities, userId, status } =
         completeOrder;
       expect(typeof id).toBe("number");
       expect(typeof userId).toBe("string");
-      expect(typeof isCompleted).toBe("boolean");
+      expect([OrderStatus.Active, OrderStatus.Completed]).toContain(status);
 
       expect(productIds.length).toBe(productQuantities.length);
       expect(productIds.length).toBeGreaterThan(1);
@@ -54,7 +54,7 @@ describe("Order handler endpoint", (): void => {
         productIds: [102, 103, 105],
         productQuantities: [4, 2, 2],
         userId: "taysia_amylynn",
-        isCompleted: false,
+        status: "active" as OrderStatus,
       };
       const response: Response = await request(app)
         .post("/order")
@@ -68,7 +68,7 @@ describe("Order handler endpoint", (): void => {
         productIds: [102, 103, 105],
         productQuantities: [4, 2, 2],
         userId: "taysia_amylynn",
-        isCompleted: false,
+        status: "active" as OrderStatus,
       };
       const response: Response = await request(app)
         .post("/order")
@@ -82,7 +82,7 @@ describe("Order handler endpoint", (): void => {
         newCompleteOrder.productQuantities
       );
       expect(order.userId).toBe(newCompleteOrder.userId);
-      expect(order.isCompleted).toBe(false);
+      expect(order.status).toBe(newCompleteOrder.status);
     });
 
     it("should return error for invalid order data", async (): Promise<void> => {
@@ -90,7 +90,7 @@ describe("Order handler endpoint", (): void => {
         productIds: 101,
         productQuantities: 4,
         userId: "antasia_marjory",
-        isCompleted: false,
+        status: "active",
       };
       const response1: Response = await request(app)
         .post("/order")
@@ -105,7 +105,7 @@ describe("Order handler endpoint", (): void => {
         productIds: [102, 105],
         productQuantities: [2, -1],
         userId: "antasia_marjory",
-        isCompleted: false,
+        status: "active",
       };
       const response2: Response = await request(app)
         .post("/order")
@@ -135,7 +135,7 @@ describe("Order handler endpoint", (): void => {
         productIds: [103, 185],
         productQuantities: [4, 2],
         userId: "april_serra",
-        isCompleted: true,
+        status: "completed" as OrderStatus,
       };
       const response: Response = await request(app)
         .post("/order")
@@ -150,7 +150,7 @@ describe("Order handler endpoint", (): void => {
         productIds: [103, 105],
         productQuantities: [4, 2],
         userId: "random_user",
-        isCompleted: false,
+        status: "active" as OrderStatus,
       };
       const response: Response = await request(app)
         .post("/order")
