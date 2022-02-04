@@ -11,6 +11,7 @@ import {
   UserActiveOrdersNotFoundError,
   UserCompletedOrdersNotFoundError,
   UserNotFoundError,
+  UserOrdersNotFountError,
 } from "../../errors";
 
 describe("Order handler endpoint", (): void => {
@@ -162,19 +163,71 @@ describe("Order handler endpoint", (): void => {
       expect(response.body).toBe(UserNotFoundError.toString());
     });
   });
+});
 
-  describe("GET /users/:userId/orders/active", (): void => {
+describe("User orders handler endpoint", (): void => {
+  describe("GET /users/:userId/orders", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
       const response: Response = await request(app).get(
-        "/users/antasia_marjory/orders/active"
+        "/users/antasia_marjory/orders"
       );
+      expect(response.status).toBe(httpStatus(AuthorizationError));
+      expect(response.body).toBe(AuthorizationError.toString());
+    });
+
+    it("should return list of all complete orders", async (): Promise<void> => {
+      const response: Response = await request(app)
+        .get("/users/antasia_marjory/orders")
+        .auth(validToken, { type: "bearer" });
+      expect(response.status).toBe(200);
+      const completeOrders: CompleteOrder[] = response.body;
+      expect(completeOrders.length).toBeGreaterThan(1);
+      for (const completeOrder of completeOrders) {
+        const { id, productIds, productQuantities, userId, status } =
+          completeOrder;
+        expect(typeof id).toBe("number");
+        expect(userId).toBe("antasia_marjory");
+        expect([OrderStatus.Active, OrderStatus.Completed]).toContain(status);
+
+        expect(productIds.length).toBe(productQuantities.length);
+        expect(productIds.length).toBeGreaterThan(1);
+        for (let i = 0; i < productIds.length; i++) {
+          expect(typeof productIds[i]).toBe("number");
+          expect(typeof productQuantities[i]).toBe("number");
+        }
+      }
+    });
+
+    it("should return error for non-existing user", async (): Promise<void> => {
+      const response: Response = await request(app)
+        .get("/users/random_user/orders")
+        .auth(validToken, { type: "bearer" });
+      expect(response.status).toBe(httpStatus(UserNotFoundError));
+      expect(response.body).toBe(UserNotFoundError.toString());
+    });
+
+    it("should return error for user not having any orders", async (): Promise<void> => {
+      const response: Response = await request(app)
+        .get("/users/taysia_amylynn/orders")
+        .auth(validToken, { type: "bearer" });
+      expect(response.status).toBe(httpStatus(UserOrdersNotFountError));
+      expect(response.body).toBe(UserOrdersNotFountError.toString());
+    });
+  });
+
+  describe("GET /users/:userId/orders?status=active", (): void => {
+    it("should return error without valid token", async (): Promise<void> => {
+      const response: Response = await request(app)
+        .get("/users/antasia_marjory/orders")
+        .query({ status: OrderStatus.Active });
       expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
     });
 
     it("should return list of all active complete orders", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/users/antasia_marjory/orders/active")
+        .get("/users/antasia_marjory/orders")
+        .query({ status: OrderStatus.Active })
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(200);
       const completeOrders: CompleteOrder[] = response.body;
@@ -197,7 +250,8 @@ describe("Order handler endpoint", (): void => {
 
     it("should return error for non-existing user", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/users/random_user/orders/active")
+        .get("/users/random_user/orders")
+        .query({ status: OrderStatus.Active })
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(httpStatus(UserNotFoundError));
       expect(response.body).toBe(UserNotFoundError.toString());
@@ -205,25 +259,27 @@ describe("Order handler endpoint", (): void => {
 
     it("should return error for user not having any active orders", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/users/taysia_amylynn/orders/active")
+        .get("/users/taysia_amylynn/orders")
+        .query({ status: OrderStatus.Active })
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(httpStatus(UserActiveOrdersNotFoundError));
       expect(response.body).toBe(UserActiveOrdersNotFoundError.toString());
     });
   });
 
-  describe("GET /users/:userId/orders/completed", (): void => {
+  describe("GET /users/:userId/orders?status=completed", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
-      const response: Response = await request(app).get(
-        "/users/antasia_marjory/orders/completed"
-      );
+      const response: Response = await request(app)
+        .get("/users/antasia_marjory/orders")
+        .query({ status: OrderStatus.Completed });
       expect(response.status).toBe(httpStatus(AuthorizationError));
       expect(response.body).toBe(AuthorizationError.toString());
     });
 
     it("should return list of all completed complete orders", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/users/antasia_marjory/orders/completed")
+        .get("/users/antasia_marjory/orders")
+        .query({ status: OrderStatus.Completed })
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(200);
       const completeOrders: CompleteOrder[] = response.body;
@@ -246,7 +302,8 @@ describe("Order handler endpoint", (): void => {
 
     it("should return error for non-existing user", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/users/random_user/orders/completed")
+        .get("/users/random_user/orders")
+        .query({ status: OrderStatus.Completed })
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(httpStatus(UserNotFoundError));
       expect(response.body).toBe(UserNotFoundError.toString());
@@ -254,7 +311,8 @@ describe("Order handler endpoint", (): void => {
 
     it("should return error for user not having any completed orders", async (): Promise<void> => {
       const response: Response = await request(app)
-        .get("/users/taysia_amylynn/orders/completed")
+        .get("/users/taysia_amylynn/orders")
+        .query({ status: OrderStatus.Completed })
         .auth(validToken, { type: "bearer" });
       expect(response.status).toBe(
         httpStatus(UserCompletedOrdersNotFoundError)

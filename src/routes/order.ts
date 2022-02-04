@@ -52,34 +52,18 @@ orderHandler.post(
 const userOrderHandler: Router = Router({ mergeParams: true });
 
 userOrderHandler.get(
-  "/active",
+  "/",
   checkAuthorization,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId: string = req.params.userId;
+      const status: OrderStatus | undefined = req.query.status as
+        | OrderStatus
+        | undefined;
       const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
-        await OrderStore.showUserCompleteOrders(userId, OrderStatus.Active);
-      if (!showUserCompleteOrdersResult.ok) {
-        const error: Error = showUserCompleteOrdersResult.data;
-        res.status(httpStatus(error)).json(error.toString());
-        return;
-      }
-      const completeOrders: CompleteOrder[] = showUserCompleteOrdersResult.data;
-      res.json(completeOrders);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-userOrderHandler.get(
-  "/completed",
-  checkAuthorization,
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userId: string = req.params.userId;
-      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
-        await OrderStore.showUserCompleteOrders(userId, OrderStatus.Completed);
+        status !== undefined
+          ? await OrderStore.showUserCompleteOrders(userId, status)
+          : await OrderStore.showUserCompleteOrders(userId);
       if (!showUserCompleteOrdersResult.ok) {
         const error: Error = showUserCompleteOrdersResult.data;
         res.status(httpStatus(error)).json(error.toString());
