@@ -13,6 +13,9 @@ productHandler.get(
       let products: Product[];
       if (req.query.popular === "true") {
         products = await ProductStore.showPopularProducts();
+      } else if (req.query.category !== undefined) {
+        const category: string = req.query.category as string;
+        products = await ProductStore.showCategoryProducts(category);
       } else {
         products = await ProductStore.index();
       }
