@@ -12,6 +12,7 @@ import {
   UserActiveOrdersNotFoundError,
   UserCompletedOrdersNotFoundError,
   UserNotFoundError,
+  UserOrdersNotFountError,
 } from "../../errors";
 
 describe("OrderStore", (): void => {
@@ -211,7 +212,31 @@ describe("OrderStore", (): void => {
   });
 
   describe("showUserCompleteOrders method", (): void => {
-    it("should return active complete orders", async (): Promise<void> => {
+    it("should return list of all complete orders", async (): Promise<void> => {
+      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
+        await OrderStore.showUserCompleteOrders("april_serra");
+      expect(showUserCompleteOrdersResult.ok).toBe(true);
+
+      const completeOrders: CompleteOrder[] =
+        showUserCompleteOrdersResult.data as CompleteOrder[];
+      expect(completeOrders.length).toBeGreaterThan(1);
+      for (const completeOrder of completeOrders) {
+        const { id, productIds, productQuantities, userId, status } =
+          completeOrder;
+        expect(typeof id).toBe("number");
+        expect(userId).toBe("april_serra");
+        expect([OrderStatus.Active, OrderStatus.Completed]).toContain(status);
+
+        expect(productIds.length).toBe(productQuantities.length);
+        expect(productIds.length).toBeGreaterThan(1);
+        for (let i = 0; i < productIds.length; i++) {
+          expect(typeof productIds[i]).toBe("number");
+          expect(typeof productQuantities[i]).toBe("number");
+        }
+      }
+    });
+
+    it("should return list of active complete orders", async (): Promise<void> => {
       const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
         await OrderStore.showUserCompleteOrders(
           "april_serra",
@@ -238,7 +263,7 @@ describe("OrderStore", (): void => {
       }
     });
 
-    it("should return completed complete orders", async (): Promise<void> => {
+    it("should return list of completed complete orders", async (): Promise<void> => {
       const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
         await OrderStore.showUserCompleteOrders(
           "antasia_marjory",
@@ -273,6 +298,13 @@ describe("OrderStore", (): void => {
         );
       expect(showUserCompleteOrdersResult.ok).toBe(false);
       expect(showUserCompleteOrdersResult.data).toBe(UserNotFoundError);
+    });
+
+    it("should return error for user not having any orders", async (): Promise<void> => {
+      const showUserCompleteOrdersResult: Result<CompleteOrder[]> =
+        await OrderStore.showUserCompleteOrders("taysia_amylynn");
+      expect(showUserCompleteOrdersResult.ok).toBe(false);
+      expect(showUserCompleteOrdersResult.data).toBe(UserOrdersNotFountError);
     });
 
     it("should return error for user not having any active orders", async (): Promise<void> => {

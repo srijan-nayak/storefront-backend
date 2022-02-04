@@ -40,6 +40,10 @@ export const CompleteOrderFieldsIncorrectError: Error = Error(
   "Complete order has incorrect or empty fields"
 );
 
+export const UserOrdersNotFountError: Error = Error(
+  "User doesn't have any orders"
+);
+
 export const UserActiveOrdersNotFoundError: Error = Error(
   "User doesn't have any active orders"
 );
@@ -60,6 +64,7 @@ export const httpStatus = (error: Error): number => {
     case UserNotFoundError:
     case ProductNotFoundError:
     case OrderNotFoundError:
+    case UserOrdersNotFountError:
     case UserActiveOrdersNotFoundError:
     case UserCompletedOrdersNotFoundError:
       return 404;

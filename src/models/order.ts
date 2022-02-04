@@ -5,6 +5,7 @@ import {
   OrderNotFoundError,
   UserActiveOrdersNotFoundError,
   UserCompletedOrdersNotFoundError,
+  UserOrdersNotFountError,
 } from "../errors";
 import UserStore, { User } from "./user";
 import { QueryResult } from "pg";
@@ -90,25 +91,31 @@ class OrderStore {
 
   static async showUserCompleteOrders(
     userId: string,
-    status: OrderStatus
+    status?: OrderStatus
   ): Promise<Result<CompleteOrder[]>> {
     const userShowResult: Result<User> = await UserStore.show(userId);
     if (!userShowResult.ok) return userShowResult;
 
+    const sql = OrderStore.isOrderStatus(status)
+      ? "select * from orders where user_id = $1 and completed = $2"
+      : "select * from orders where user_id = $1";
+    const queryValues = OrderStore.isOrderStatus(status)
+      ? [userId, status === OrderStatus.Completed]
+      : [userId];
+
     const userOrdersQueryResult: QueryResult<Order> = await pgPool.query(
-      `select *
-       from orders
-       where user_id = $1
-         and completed = $2`,
-      [userId, status === OrderStatus.Completed]
+      sql,
+      queryValues
     );
     const userOrders: Order[] = userOrdersQueryResult.rows;
     if (userOrders.length === 0) {
-      const ordersNotFoundError =
-        status === OrderStatus.Active
-          ? UserActiveOrdersNotFoundError
-          : UserCompletedOrdersNotFoundError;
-      return { ok: false, data: ordersNotFoundError };
+      if (status === OrderStatus.Active) {
+        return { ok: false, data: UserActiveOrdersNotFoundError };
+      } else if (status === OrderStatus.Completed) {
+        return { ok: false, data: UserCompletedOrdersNotFoundError };
+      } else {
+        return { ok: false, data: UserOrdersNotFountError };
+      }
     }
 
     const userCompleteOrders: CompleteOrder[] = [];
@@ -218,6 +225,10 @@ class OrderStore {
 
     if (typeof userId !== "string" || userId === "") return false;
     return status === OrderStatus.Active || status === OrderStatus.Completed;
+  }
+
+  private static isOrderStatus(object: unknown): object is OrderStatus {
+    return object === OrderStatus.Active || object === OrderStatus.Completed;
   }
 
   private static convertToCompleteOrder(
