@@ -41,7 +41,7 @@ describe("User handler endpoint", (): void => {
     });
   });
 
-  describe("GET /users/:id", (): void => {
+  describe("GET /users/:userId", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
       const response: Response = await request(app).get(
         "/users/antasia_marjory"

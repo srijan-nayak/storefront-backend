@@ -25,7 +25,7 @@ describe("Product handler endpoint", (): void => {
     });
   });
 
-  describe("GET /products/:id", (): void => {
+  describe("GET /products/:productId", (): void => {
     it("should return details for existing product", async (): Promise<void> => {
       const response: Response = await request(app).get("/products/103");
       expect(response.status).toBe(200);

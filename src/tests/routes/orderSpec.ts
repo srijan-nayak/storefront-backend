@@ -14,7 +14,7 @@ import {
 } from "../../errors";
 
 describe("Order handler endpoint", (): void => {
-  describe("GET /orders/:id", (): void => {
+  describe("GET /orders/:orderId", (): void => {
     it("should return error without valid token", async (): Promise<void> => {
       const response: Response = await request(app).get("/orders/202");
       expect(response.status).toBe(httpStatus(AuthorizationError));
