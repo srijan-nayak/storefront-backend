@@ -36,7 +36,7 @@ export const OrderFieldsIncorrectError: Error = Error(
   "Order has incorrect or empty fields"
 );
 
-export const CompleteOrderIncorrectFieldsError: Error = Error(
+export const CompleteOrderFieldsIncorrectError: Error = Error(
   "Complete order has incorrect or empty fields"
 );
 
@@ -69,7 +69,7 @@ export const httpStatus = (error: Error): number => {
     case ProductFieldsIncorrectError:
     case OrderFieldsIncorrectError:
     case OrderProductFieldsIncorrectError:
-    case CompleteOrderIncorrectFieldsError:
+    case CompleteOrderFieldsIncorrectError:
       return 422;
     case DBError:
     default:

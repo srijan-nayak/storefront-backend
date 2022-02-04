@@ -1,6 +1,6 @@
 import { Result } from "../result";
 import {
-  CompleteOrderIncorrectFieldsError,
+  CompleteOrderFieldsIncorrectError,
   OrderFieldsIncorrectError,
   OrderNotFoundError,
   UserActiveOrdersNotFoundError,
@@ -35,7 +35,7 @@ class OrderStore {
     completeOrder: CompleteOrder
   ): Promise<Result<CompleteOrder>> {
     if (!OrderStore.isCompleteOrder(completeOrder))
-      return { ok: false, data: CompleteOrderIncorrectFieldsError };
+      return { ok: false, data: CompleteOrderFieldsIncorrectError };
 
     const { userId, status, productIds, productQuantities } = completeOrder;
 

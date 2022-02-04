@@ -4,7 +4,7 @@ import { validToken } from "./userSpec";
 import { CompleteOrder, OrderStatus } from "../../models/order";
 import {
   AuthorizationError,
-  CompleteOrderIncorrectFieldsError,
+  CompleteOrderFieldsIncorrectError,
   httpStatus,
   OrderNotFoundError,
   ProductNotFoundError,
@@ -99,9 +99,9 @@ describe("Order handler endpoint", (): void => {
         .send(invalidOrder1)
         .auth(validToken, { type: "bearer" });
       expect(response1.status).toBe(
-        httpStatus(CompleteOrderIncorrectFieldsError)
+        httpStatus(CompleteOrderFieldsIncorrectError)
       );
-      expect(response1.body).toBe(CompleteOrderIncorrectFieldsError.toString());
+      expect(response1.body).toBe(CompleteOrderFieldsIncorrectError.toString());
 
       const invalidOrder2: object = {
         productIds: [102, 105],
@@ -114,9 +114,9 @@ describe("Order handler endpoint", (): void => {
         .send(invalidOrder2)
         .auth(validToken, { type: "bearer" });
       expect(response2.status).toBe(
-        httpStatus(CompleteOrderIncorrectFieldsError)
+        httpStatus(CompleteOrderFieldsIncorrectError)
       );
-      expect(response2.body).toBe(CompleteOrderIncorrectFieldsError.toString());
+      expect(response2.body).toBe(CompleteOrderFieldsIncorrectError.toString());
 
       const invalidOrder3: object = {
         productIds: [102, 105],
@@ -127,9 +127,9 @@ describe("Order handler endpoint", (): void => {
         .send(invalidOrder3)
         .auth(validToken, { type: "bearer" });
       expect(response3.status).toBe(
-        httpStatus(CompleteOrderIncorrectFieldsError)
+        httpStatus(CompleteOrderFieldsIncorrectError)
       );
-      expect(response3.body).toBe(CompleteOrderIncorrectFieldsError.toString());
+      expect(response3.body).toBe(CompleteOrderFieldsIncorrectError.toString());
     });
 
     it("should return error for non-existing products", async (): Promise<void> => {

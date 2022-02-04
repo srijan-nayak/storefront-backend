@@ -5,7 +5,7 @@ import OrderStore, {
 } from "../../models/order";
 import { Result } from "../../result";
 import {
-  CompleteOrderIncorrectFieldsError,
+  CompleteOrderFieldsIncorrectError,
   OrderFieldsIncorrectError,
   OrderNotFoundError,
   ProductNotFoundError,
@@ -131,7 +131,7 @@ describe("OrderStore", (): void => {
       const createResult1: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(invalidOrder1 as CompleteOrder);
       expect(createResult1.ok).toBe(false);
-      expect(createResult1.data).toBe(CompleteOrderIncorrectFieldsError);
+      expect(createResult1.data).toBe(CompleteOrderFieldsIncorrectError);
 
       const invalidOrder2: object = {
         productIds: [102, 105],
@@ -142,7 +142,7 @@ describe("OrderStore", (): void => {
       const createResult2: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(invalidOrder2 as CompleteOrder);
       expect(createResult2.ok).toBe(false);
-      expect(createResult2.data).toBe(CompleteOrderIncorrectFieldsError);
+      expect(createResult2.data).toBe(CompleteOrderFieldsIncorrectError);
 
       const invalidOrder3: object = {
         productIds: [102, 105],
@@ -151,7 +151,7 @@ describe("OrderStore", (): void => {
       const createResult3: Result<CompleteOrder> =
         await OrderStore.createCompleteOrder(invalidOrder3 as CompleteOrder);
       expect(createResult3.ok).toBe(false);
-      expect(createResult3.data).toBe(CompleteOrderIncorrectFieldsError);
+      expect(createResult3.data).toBe(CompleteOrderFieldsIncorrectError);
     });
 
     it("should return error for non-existing products", async (): Promise<void> => {
