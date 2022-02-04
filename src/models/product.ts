@@ -51,6 +51,20 @@ class ProductStore {
     return { ok: true, data: createdProduct };
   }
 
+  static async showPopularProducts(): Promise<Product[]> {
+    const queryResult: QueryResult<Product> = await pgPool.query(
+      `select id, name, price::numeric::double precision, category
+       from products
+                join order_products on id = product_id
+       group by id, name, price
+       order by sum(quantity) desc
+       limit 5`
+    );
+
+    const popularProducts: Product[] = queryResult.rows;
+    return popularProducts;
+  }
+
   private static isProduct(object: unknown): object is Product {
     const id: unknown = (object as Product).id;
     const name: unknown = (object as Product).name;
