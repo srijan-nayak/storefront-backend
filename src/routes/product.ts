@@ -8,9 +8,14 @@ const productHandler: Router = Router();
 
 productHandler.get(
   "/",
-  async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const products: Product[] = await ProductStore.index();
+      let products: Product[];
+      if (req.query.popular === "true") {
+        products = await ProductStore.showPopularProducts();
+      } else {
+        products = await ProductStore.index();
+      }
       res.json(products);
     } catch (error) {
       next(error);
