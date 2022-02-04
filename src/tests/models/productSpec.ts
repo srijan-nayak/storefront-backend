@@ -79,6 +79,21 @@ describe("ProductStore", (): void => {
     });
   });
 
+  describe("describe showCategoryProducts", (): void => {
+    it("should return a list of products of given category", async (): Promise<void> => {
+      const products: Product[] = await ProductStore.showCategoryProducts(
+        "Clothing"
+      );
+      expect(products.length).toBeGreaterThan(1);
+      for (const product of products) {
+        expect(typeof product.id).toBe("number");
+        expect(typeof product.name).toBe("string");
+        expect(typeof product.price).toBe("number");
+        expect(product.category).toBe("Clothing");
+      }
+    });
+  });
+
   describe("showPopularProductsMethod", (): void => {
     it("should return a list of 5 products", async (): Promise<void> => {
       const products: Product[] = await ProductStore.showPopularProducts();
