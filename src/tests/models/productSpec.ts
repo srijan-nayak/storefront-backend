@@ -78,4 +78,17 @@ describe("ProductStore", (): void => {
       expect(createResult2.data).toBe(ProductFieldsIncorrectError);
     });
   });
+
+  describe("showPopularProductsMethod", (): void => {
+    it("should return a list of 5 products", async (): Promise<void> => {
+      const products: Product[] = await ProductStore.showPopularProducts();
+      expect(products.length).toBe(5);
+      for (const product of products) {
+        expect(typeof product.id).toBe("number");
+        expect(typeof product.name).toBe("string");
+        expect(typeof product.price).toBe("number");
+        expect(typeof product.category).toBe("string");
+      }
+    });
+  });
 });
