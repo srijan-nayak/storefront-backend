@@ -51,6 +51,18 @@ class ProductStore {
     return { ok: true, data: createdProduct };
   }
 
+  static async showCategoryProducts(category: string): Promise<Product[]> {
+    const queryResult: QueryResult<Product> = await pgPool.query(
+      `select id, name, price::numeric::double precision, category
+       from products
+       where category = $1`,
+      [category]
+    );
+
+    const categoryProducts: Product[] = queryResult.rows;
+    return categoryProducts;
+  }
+
   static async showPopularProducts(): Promise<Product[]> {
     const queryResult: QueryResult<Product> = await pgPool.query(
       `select id, name, price::numeric::double precision, category
