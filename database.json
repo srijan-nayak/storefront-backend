@@ -5,6 +5,7 @@
     "user": {"ENV": "PG_USER"},
     "password": {"ENV": "PG_PASSWORD"},
     "host": {"ENV": "PG_HOST"},
+    "port": {"ENV":  "PG_PORT"},
     "database": {"ENV": "PG_DB"}
   },
   "test": {
@@ -12,6 +13,7 @@
     "user": {"ENV": "PG_USER"},
     "password": {"ENV": "PG_PASSWORD"},
     "host": {"ENV": "PG_HOST"},
+    "port": {"ENV":  "PG_PORT"},
     "database": {"ENV": "PG_TEST_DB"}
   }
 }
