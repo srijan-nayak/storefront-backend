@@ -192,3 +192,71 @@ Returns product details for the given product ID. Valid token is required.
 GET http://localhost:9876/products/1
 Accept: application/json
 ```
+
+### Orders
+
+#### Create endpoint
+
+Creates order with provided details and returns the order product. Valid token is required.
+
+```http request
+POST http://localhost:9876/orders
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRheXNpYV9hbXlseW5uIiwiZmlyc3ROYW1lIjoiVGF5c2lhIiwibGFzdE5hbWUiOiJBbXlseW5uIiwicGFzc3dvcmQiOiIkMmIkMTEkZ0pkL3I0Ty5KU3ppMDRlNUlUMWtOT3hvNU41cndRWnBTWS5MZy5QaERPV0dSNHpBbFNPWHEiLCJpYXQiOjE2NDM3ODIwOTV9.4HHcOgH1weJdHADfihVrLdGVLruzZgVz2UnZioqpego
+
+{
+  "productIds": [
+    102,
+    103,
+    105
+  ],
+  "productQuantities": [
+    4,
+    2,
+    2
+  ],
+  "userId": "taysia_amylynn",
+  "status": "active"
+}
+```
+
+#### Show endpoint
+
+Returns order details for the given order ID. Valid token is required.
+
+```http request
+GET http://localhost:9876/orders/208
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRheXNpYV9hbXlseW5uIiwiZmlyc3ROYW1lIjoiVGF5c2lhIiwibGFzdE5hbWUiOiJBbXlseW5uIiwicGFzc3dvcmQiOiIkMmIkMTEkZ0pkL3I0Ty5KU3ppMDRlNUlUMWtOT3hvNU41cndRWnBTWS5MZy5QaERPV0dSNHpBbFNPWHEiLCJpYXQiOjE2NDM3ODIwOTV9.4HHcOgH1weJdHADfihVrLdGVLruzZgVz2UnZioqpego
+```
+
+#### User orders index endpoint
+
+Returns a list of all orders for the given user ID. Valid token is required.
+
+```http request
+GET http://localhost:9876/users/antasia_marjory/orders
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRheXNpYV9hbXlseW5uIiwiZmlyc3ROYW1lIjoiVGF5c2lhIiwibGFzdE5hbWUiOiJBbXlseW5uIiwicGFzc3dvcmQiOiIkMmIkMTEkZ0pkL3I0Ty5KU3ppMDRlNUlUMWtOT3hvNU41cndRWnBTWS5MZy5QaERPV0dSNHpBbFNPWHEiLCJpYXQiOjE2NDM3ODIwOTV9.4HHcOgH1weJdHADfihVrLdGVLruzZgVz2UnZioqpego
+```
+
+#### User active orders endpoint
+
+Returns a list of all active orders for the given user ID. Valid token is required.
+
+```http request
+GET http://localhost:9876/users/antasia_marjory/orders?status=active
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRheXNpYV9hbXlseW5uIiwiZmlyc3ROYW1lIjoiVGF5c2lhIiwibGFzdE5hbWUiOiJBbXlseW5uIiwicGFzc3dvcmQiOiIkMmIkMTEkZ0pkL3I0Ty5KU3ppMDRlNUlUMWtOT3hvNU41cndRWnBTWS5MZy5QaERPV0dSNHpBbFNPWHEiLCJpYXQiOjE2NDM3ODIwOTV9.4HHcOgH1weJdHADfihVrLdGVLruzZgVz2UnZioqpego
+```
+
+#### User completed orders endpoint
+
+Returns a list of all completed orders for the given user ID. Valid token is required.
+
+```http request
+GET http://localhost:9876/users/antasia_marjory/orders?status=completed
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRheXNpYV9hbXlseW5uIiwiZmlyc3ROYW1lIjoiVGF5c2lhIiwibGFzdE5hbWUiOiJBbXlseW5uIiwicGFzc3dvcmQiOiIkMmIkMTEkZ0pkL3I0Ty5KU3ppMDRlNUlUMWtOT3hvNU41cndRWnBTWS5MZy5QaERPV0dSNHpBbFNPWHEiLCJpYXQiOjE2NDM3ODIwOTV9.4HHcOgH1weJdHADfihVrLdGVLruzZgVz2UnZioqpego
+```
