@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "tsc -p tsconfig.build.json && node build",
     "build": "tsc",
     "dev": "tsc-watch --onSuccess \"node dev-build\"",
     "test": "tsc; export $(egrep -v \"#|^$\" .env | xargs) && db-migrate db:create $PG_TEST_DB && db-migrate --env test up && NODE_ENV=test jasmine; db-migrate db:drop $PG_TEST_DB",
