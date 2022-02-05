@@ -1,6 +1,6 @@
 # Storefront backend
 
-A nodejs backend for a hypothetical storefront.
+A nodejs backend API for a hypothetical storefront built with ExpressJS and PostgresSWL.
 
 ## Installing and setting up
 
@@ -96,7 +96,8 @@ docker-compose down
 
 ### Delete docker volume and project folder
 
-Remove the external volume with docker. **Note:** Doing so will permanently delete all data that was stored in the database.
+Remove the external volume with docker. **Note:** Doing so will permanently delete all data that was stored in the
+database.
 
 ```shell
 docker volume rm storefront-postgres-data
