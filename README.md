@@ -82,6 +82,33 @@ npm start
 
 The server will be listening on the port defined by the `PORT` environment variable.
 
+## Uninstalling
+
+### Stop server and database
+
+Hit `Ctlr+C` to quit the server.
+
+Stop the postgres database service with docker-compose.
+
+```shell
+docker-compose down
+```
+
+### Delete docker volume and project folder
+
+Remove the external volume with docker. **Note:** Doing so will permanently delete all data that was stored in the database.
+
+```shell
+docker volume rm storefront-postgres-data
+```
+
+Finally, delete the project folder.
+
+```shell
+cd ..
+rm -rf storefront-backend
+```
+
 ## Usage with examples
 
 ### Users
