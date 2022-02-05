@@ -4,9 +4,13 @@ import { dbErrorHandler } from "./middleware";
 import userHandler from "./routes/user";
 import productHandler from "./routes/product";
 import orderHandler from "./routes/order";
+import dotenv from "dotenv";
+
+dotenv.config();
+const env = process.env;
 
 const app: Express = express();
-const PORT = 3000;
+const PORT = env["PORT"] || 3000;
 
 app.use(cors());
 app.use(urlencoded({ extended: true }));
