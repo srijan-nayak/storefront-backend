@@ -137,3 +137,58 @@ GET http://localhost:9876/users/taysia_amylynn
 Accept: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImxvaWRhX21pbmEiLCJmaXJzdE5hbWUiOiJMb2lkYSIsImxhc3ROYW1lIjoiTWluYSIsInBhc3N3b3JkIjoiJDJiJDExJGpsWldWSVo3ckFFZmF6dVB2Z29aZE9vMDR3bmgxVDI0OW1EV2NnY0NOYjVsY0M0WjZRQmNHIiwiaWF0IjoxNjQyNTc0NjQ3fQ.YVfeFhF2UZVUXqP1YO8SPjAGdLAaX6xFZm5fDGljQWk
 ```
+
+### Products
+
+#### Create endpoint
+
+Creates product with provided details and returns the created product. Valid token is required.
+
+```http request
+POST http://localhost:9876/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImxvaWRhX21pbmEiLCJmaXJzdE5hbWUiOiJMb2lkYSIsImxhc3ROYW1lIjoiTWluYSIsInBhc3N3b3JkIjoiJDJiJDExJGpsWldWSVo3ckFFZmF6dVB2Z29aZE9vMDR3bmgxVDI0OW1EV2NnY0NOYjVsY0M0WjZRQmNHIiwiaWF0IjoxNjQyNTc0NjQ3fQ.YVfeFhF2UZVUXqP1YO8SPjAGdLAaX6xFZm5fDGljQWk
+
+{
+  "name": "Fantastic Frozen Salad",
+  "price": 11.82,
+  "category": "food"
+}
+```
+
+#### Index endpoint
+
+Returns a list of all products.
+
+```http request
+GET http://localhost:9876/products
+Accept: application/json
+```
+
+#### Popular products endpoint
+
+Returns a list of 5 most popular products.
+
+```http request
+GET http://localhost:9876/products?popular=true
+Accept: application/json
+```
+
+#### Category products endpoint
+
+Returns a list of products belonging to the category provided in the query parameter.
+
+```http request
+GET http://localhost:9876/products?category=food
+Accept: application/json
+```
+
+#### Show endpoint
+
+Returns product details for the given product ID. Valid token is required.
+
+```http request
+GET http://localhost:9876/products/1
+Accept: application/json
+```
