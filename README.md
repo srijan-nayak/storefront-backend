@@ -1,6 +1,6 @@
 # Storefront backend
 
-A nodejs backend API for a hypothetical storefront built with ExpressJS and PostgresSWL.
+A nodejs backend API for a hypothetical storefront built with ExpressJS and PostgresSQL.
 
 ## Installing and setting up
 
