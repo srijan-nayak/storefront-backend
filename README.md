@@ -81,3 +81,59 @@ npm start
 ```
 
 The server will be listening on the port defined by the `PORT` environment variable.
+
+## Usage with examples
+
+### Users
+
+#### Create endpoint
+
+Creates user with provided details and returns created user with the password digest.
+
+```http request
+POST http://localhost:9876/users
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "taysia_amylynn",
+  "firstName": "Taysia",
+  "lastName": "Amylynn",
+  "password": "gramsblogger"
+}
+```
+
+#### Authenticate endpoint
+
+Returns a json web token (JWT) if valid credentials are provided.
+
+```http request
+POST http://localhost:9876/users/authenticate
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "taysia_amylynn",
+  "password": "gramsblogger"
+}
+```
+
+#### Index endpoint
+
+Returns a list of all users. Valid token is required.
+
+```http request
+GET http://localhost:9876/users
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImxvaWRhX21pbmEiLCJmaXJzdE5hbWUiOiJMb2lkYSIsImxhc3ROYW1lIjoiTWluYSIsInBhc3N3b3JkIjoiJDJiJDExJGpsWldWSVo3ckFFZmF6dVB2Z29aZE9vMDR3bmgxVDI0OW1EV2NnY0NOYjVsY0M0WjZRQmNHIiwiaWF0IjoxNjQyNTc0NjQ3fQ.YVfeFhF2UZVUXqP1YO8SPjAGdLAaX6xFZm5fDGljQWk
+```
+
+#### Show endpoint
+
+Returns user details for the given user ID. Valid token is required.
+
+```http request
+GET http://localhost:9876/users/taysia_amylynn
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImxvaWRhX21pbmEiLCJmaXJzdE5hbWUiOiJMb2lkYSIsImxhc3ROYW1lIjoiTWluYSIsInBhc3N3b3JkIjoiJDJiJDExJGpsWldWSVo3ckFFZmF6dVB2Z29aZE9vMDR3bmgxVDI0OW1EV2NnY0NOYjVsY0M0WjZRQmNHIiwiaWF0IjoxNjQyNTc0NjQ3fQ.YVfeFhF2UZVUXqP1YO8SPjAGdLAaX6xFZm5fDGljQWk
+```
